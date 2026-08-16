@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>S2:U — Sustain to You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Pretendard:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --off-black:#0c0c0d;
+    --black-2:#141416;
+    --bone:#f4f2ed;
+    --bone-dim:rgba(244,242,237,0.62);
+    --move-red:#ff3d2e;
+    --recover-blue:#2b6cb0;
+    --fog:#c9cdd0;
+    --line:rgba(244,242,237,0.14);
+    --line-strong:rgba(244,242,237,0.28);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth; background:#0c0c0d;}
+  body{
+    background:#0c0c0d;
+    background:var(--off-black);
+    color:#f4f2ed;
+    color:var(--bone);
+    font-family:'Pretendard',-apple-system,sans-serif;
+    overflow-x:hidden;
+  }
+  .display{
+    font-family:'Bebas Neue','Pretendard',sans-serif;
+    letter-spacing:0.02em;
+    font-weight:400;
+    line-height:0.92;
+    text-transform:uppercase;
+  }
+  a{color:inherit; text-decoration:none;}
+  img{display:block; max-width:100%;}
+  :focus-visible{outline:2px solid var(--move-red); outline-offset:3px;}
+
+  /* ---------- PROMO BAR ---------- */
+  .promo-bar{
+    position:fixed; top:0; left:0; right:0; z-index:101;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px clamp(20px,5vw,56px);
+    background:var(--off-black); border-bottom:1px solid var(--line);
+    font-size:11px; letter-spacing:0.06em; color:var(--bone-dim);
+  }
+  .promo-bar a{font-weight:700; color:var(--bone);}
+  .promo-bar a::after{content:' →';}
+
+  /* ---------- NAV ---------- */
+  .topbar{
+    position:fixed; top:34px; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px clamp(20px,5vw,56px);
+    mix-blend-mode:difference;
+  }
+  .logo{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:24px; letter-spacing:0.06em;
+    color:#ffffff; border:1.5px solid #ffffff;
+    padding:4px 10px 2px;
+    mix-blend-mode:normal;
+    text-shadow:0 1px 6px rgba(0,0,0,0.25);
+  }
+  .menu-btn{
+    background:none; border:none; color:var(--bone);
+    font-family:'Pretendard'; font-weight:600; font-size:13px;
+    letter-spacing:0.08em; cursor:pointer;
+    display:flex; align-items:center; gap:10px;
+  }
+  .menu-btn .bars{width:26px; height:14px; position:relative;}
+  .menu-btn .bars span{
+    position:absolute; left:0; width:100%; height:1.5px; background:var(--bone);
+  }
+  .menu-btn .bars span:first-child{top:0;}
+  .menu-btn .bars span:last-child{bottom:0;}
+
+  .overlay-nav{
+    position:fixed; inset:0; z-index:200;
+    background:var(--off-black);
+    display:flex; flex-direction:column; justify-content:center;
+    padding:0 clamp(24px,8vw,120px);
+    transform:translateY(-100%);
+    transition:transform 0.55s cubic-bezier(.77,0,.18,1);
+  }
+  .overlay-nav.open{transform:translateY(0);}
+  .overlay-nav .close-btn{
+    position:absolute; top:24px; right:clamp(20px,5vw,56px);
+    background:none; border:none; color:var(--bone);
+    font-size:15px; letter-spacing:0.08em; cursor:pointer; font-weight:600;
+  }
+  .nav-list{list-style:none;}
+  .nav-list li{border-top:1px solid var(--line);}
+  .nav-list li:last-child{border-bottom:1px solid var(--line);}
+  .nav-list a{
+    display:flex; align-items:baseline; gap:18px;
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(40px,9vw,96px);
+    padding:10px 0;
+    transition:color 0.25s, padding-left 0.25s;
+  }
+  .nav-list a .num{
+    font-family:'Pretendard'; font-size:13px; font-weight:600;
+    color:var(--bone-dim); letter-spacing:0.05em;
+  }
+  .nav-list a:hover, .nav-list a:focus-visible{color:var(--move-red); padding-left:14px;}
+  .nav-foot{margin-top:48px; display:flex; gap:28px; font-size:13px; color:var(--bone-dim);}
+
+  /* ---------- HERO / STEAM DEVICE ---------- */
+  .hero{
+    position:relative; height:100svh; min-height:560px;
+    background:#0c0c0d;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    overflow:hidden;
+  }
+  .hero-art{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 22% 20%, rgba(255,61,46,0.55), transparent 60%),
+      radial-gradient(ellipse 70% 55% at 82% 78%, rgba(43,108,176,0.55), transparent 60%),
+      linear-gradient(155deg, #1a1a1c 0%, #0c0c0d 55%, #101014 100%);
+  }
+  .hero-art::after{
+    content:''; position:absolute; inset:0; opacity:0.35; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  #pulseCanvas{position:absolute; inset:0; width:100%; height:100%; touch-action:pan-y;}
+  .hero-hint{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    text-align:center; font-size:13px; letter-spacing:0.12em; color:var(--bone-dim);
+    pointer-events:none; z-index:2; transition:opacity 0.6s;
+  }
+  .hero-hint span{display:block; font-family:'Bebas Neue'; font-size:15px; letter-spacing:0.2em; margin-top:6px;}
+  .hero-copy{
+    position:relative; z-index:3; padding:0 clamp(20px,5vw,56px) clamp(28px,6vw,64px);
+    pointer-events:none;
+  }
+  .hero-eyebrow{font-size:12px; letter-spacing:0.24em; color:var(--bone-dim); margin-bottom:14px; font-weight:600;}
+  .hero-line{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(38px,8.4vw,120px);
+    display:flex; flex-wrap:wrap; gap:0 22px; align-items:baseline;
+  }
+  .hero-line .arrow{color:var(--move-red); font-size:0.55em; margin:0 -4px;}
+  .hero-line span:nth-child(3){color:var(--recover-blue);}
+  .hero-line span:last-child{color:var(--move-red);}
+  .hero-sub{max-width:520px; margin-top:20px; color:var(--bone-dim); font-size:15px; line-height:1.6;}
+  .bpm-readout{
+    position:absolute; top:110px; left:clamp(20px,5vw,56px); z-index:3;
+    display:flex; align-items:baseline; gap:8px; pointer-events:none;
+  }
+  .bpm-readout .bpm-dot{
+    width:9px; height:9px; border-radius:50%; background:var(--move-red);
+    align-self:center; margin-right:4px;
+  }
+  .bpm-readout .bpm-num{font-family:'Bebas Neue'; font-size:clamp(38px,5vw,56px); line-height:1;}
+  .bpm-readout .bpm-unit{font-size:12px; letter-spacing:0.14em; color:var(--bone-dim); font-weight:600;}
+
+  /* ---------- SECTIONS SHARED ---------- */
+  section{padding:min(14vw,120px) clamp(20px,5vw,56px);}
+  .section-head{display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:56px; flex-wrap:wrap;}
+  .eyebrow{font-size:12px; letter-spacing:0.22em; color:var(--bone-dim); font-weight:600; margin-bottom:10px;}
+  .h2{font-family:'Bebas Neue'; font-size:clamp(34px,5.6vw,68px);}
+  .lede{max-width:420px; color:var(--bone-dim); font-size:15px; line-height:1.7;}
+
+  /* ABOUT */
+  .about{background:#0c0c0d; border-top:1px solid var(--line);}
+  .about-grid{display:grid; grid-template-columns:1fr 1fr; gap:48px;}
+  .about-grid p{font-size:15px; line-height:1.85; color:var(--bone-dim); margin-bottom:18px;}
+  .about-grid p strong{color:var(--bone); font-weight:700;}
+  .flow{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px;}
+  .flow span{
+    border:1px solid var(--line-strong); padding:8px 16px; font-size:12px;
+    letter-spacing:0.08em; font-weight:600; border-radius:999px;
+  }
+  .flow span:nth-child(1){border-color:var(--move-red); color:var(--move-red);}
+  .flow span:nth-child(3){border-color:var(--recover-blue); color:var(--recover-blue);}
+  @media (max-width:760px){.about-grid{grid-template-columns:1fr;}}
+
+  /* WORKOUT */
+  .workout{background:#0c0c0d; border-top:1px solid var(--line);}
+  .prog-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line);}
+  .prog-card{
+    position:relative; overflow:hidden;
+    background:var(--off-black); padding:32px 24px; min-height:340px;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .prog-card video{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    opacity:0.55; transition:opacity 0.4s;
+  }
+  .prog-card:hover video{opacity:0.75;}
+  .prog-card::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(12,12,13,0.15) 0%, rgba(12,12,13,0.55) 55%, rgba(12,12,13,0.92) 100%);
+  }
+  .prog-card > *{position:relative; z-index:1;}
+  .prog-tag{font-size:11px; letter-spacing:0.14em; font-weight:700; color:var(--bone-dim);}
+  .prog-tag.red{color:var(--move-red);}
+  .prog-tag.blue{color:var(--recover-blue);}
+  .prog-name{font-family:'Bebas Neue'; font-size:clamp(26px,3vw,34px); margin:22px 0 10px; line-height:1;}
+  .prog-nick{font-size:13px; color:var(--bone-dim);}
+  @media (max-width:900px){.prog-grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:520px){.prog-grid{grid-template-columns:1fr;}}
+
+  /* MEMBERSHIP */
+  .membership{
+    position:relative; overflow:hidden;
+    border-top:1px solid var(--line);
+    background:#0c0c0d;
+    background:linear-gradient(155deg, #17181a 0%, #0c0c0d 55%, #101014 100%);
+    color:var(--bone);
+  }
+  .mem-glow{
+    position:absolute; inset:-10%; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse 55% 45% at var(--gx1,20%) var(--gy1,25%), rgba(255,61,46,0.42), transparent 62%),
+      radial-gradient(ellipse 50% 42% at var(--gx2,80%) var(--gy2,75%), rgba(43,108,176,0.42), transparent 62%);
+    animation:memDrift 16s ease-in-out infinite;
+  }
+  @keyframes memDrift{
+    0%,100%{ --gx1:18%; --gy1:22%; --gx2:82%; --gy2:78%; }
+    50%{ --gx1:34%; --gy1:44%; --gx2:66%; --gy2:56%; }
+  }
+  .membership::after{
+    content:''; position:absolute; inset:0; z-index:0; opacity:0.3; mix-blend-mode:overlay; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .membership > *{position:relative; z-index:1;}
+  .mem-intro{max-width:640px; margin:0 auto; text-align:center;}
+  .mem-head{font-size:clamp(30px,5vw,58px); line-height:0.98;}
+  .mem-head em{font-style:normal; color:var(--move-red);}
+  .mem-sub{margin-top:16px; font-size:15px; line-height:1.7; color:var(--bone-dim);}
+
+  .plan-grid{margin-top:56px; display:flex; gap:24px; flex-wrap:wrap;}
+  .plan-card{
+    flex:1; min-width:280px; border:1px solid var(--line); border-radius:4px;
+    padding:36px 32px; background:rgba(244,242,237,0.02);
+    transition:border-color 0.25s, background 0.25s;
+  }
+  .plan-card:hover{border-color:rgba(244,242,237,0.3); background:rgba(244,242,237,0.045);}
+  .plan-tag{font-size:11px; letter-spacing:0.18em; font-weight:700;}
+  .plan-tag.red{color:var(--move-red);}
+  .plan-tag.blue{color:var(--recover-blue);}
+  .plan-name{font-size:clamp(28px,3vw,36px); margin-top:12px; line-height:1;}
+  .plan-price{margin-top:8px; font-size:13px; color:var(--bone-dim); letter-spacing:0.04em;}
+  .plan-list{margin-top:26px; border-top:1px solid var(--line);}
+  .plan-list li{
+    list-style:none; display:flex; align-items:center; gap:14px;
+    padding:13px 0; border-bottom:1px solid var(--line);
+    font-size:14px; font-weight:600;
+  }
+  .plan-list li::before{content:'—'; color:var(--move-red); font-weight:700;}
+  .plan-cta{
+    margin-top:26px; display:inline-flex; align-items:center; gap:10px;
+    background:var(--bone); color:var(--off-black);
+    padding:13px 22px; font-size:13px; font-weight:700; letter-spacing:0.06em;
+    border-radius:999px; transition:transform 0.25s, box-shadow 0.25s;
+  }
+  .plan-cta:hover{transform:translateY(-2px); box-shadow:0 8px 24px rgba(255,61,46,0.25);}
+  .plan-early{
+    margin-top:16px; font-size:12px; letter-spacing:0.04em; color:var(--bone-dim);
+  }
+  .plan-early b{color:var(--move-red); font-family:'Bebas Neue'; font-size:15px; letter-spacing:0.02em;}
+  @media (max-width:820px){.plan-grid{flex-direction:column;}}
+
+  /* LOCATION */
+  .location{background:#0c0c0d; border-top:1px solid var(--line); display:grid; grid-template-columns:1fr 1fr; gap:0;}
+  .loc-copy{padding-right:40px;}
+  .loc-copy p{color:var(--bone-dim); font-size:15px; line-height:1.8; margin-top:16px; max-width:440px;}
+  .loc-status{display:inline-flex; align-items:center; gap:8px; margin-top:24px; font-size:12px; letter-spacing:0.1em; color:var(--move-red); font-weight:700;}
+  .loc-status .dot{width:7px; height:7px; border-radius:50%; background:var(--move-red); animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:0.25;}}
+  .loc-map{
+    position:relative; min-height:320px; border:1px solid var(--line);
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0/38px 38px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/38px 38px,
+      var(--black-2);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .loc-pin{text-align:center;}
+  .loc-pin .pin-dot{width:14px; height:14px; border-radius:50% 50% 50% 0; background:var(--recover-blue); transform:rotate(-45deg); margin:0 auto 14px;}
+  .loc-pin p{font-size:13px; letter-spacing:0.1em; color:var(--bone-dim);}
+  @media (max-width:800px){.location{grid-template-columns:1fr;} .loc-copy{padding-right:0; margin-bottom:40px;}}
+
+  /* LIFESTYLE / PLAYLIST */
+  .lifestyle{background:#0c0c0d; border-top:1px solid var(--line);}
+  .mix-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:20px 24px;}
+  .mix-card{border:1px solid var(--line); padding:18px; transition:border-color 0.25s;}
+  .mix-card:hover{border-color:var(--line-strong);}
+  .mix-card-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px;}
+  .mix-tag{font-family:'Bebas Neue'; font-size:13px; letter-spacing:0.08em; color:var(--bone-dim);}
+  .mix-title{font-size:14px; font-weight:700; line-height:1.4;}
+  .mix-player-wrap{position:relative;}
+  .mix-iframe{display:block; width:100%; height:120px; border:0; background:var(--black-2);}
+  .mix-thumb{
+    position:absolute; inset:0; width:100%; height:100%; border:0; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+    color:var(--bone); transition:opacity 0.3s; overflow:hidden;
+  }
+  .mix-thumb.hide{opacity:0; pointer-events:none;}
+  .mix-wave{width:110px; height:26px; color:rgba(244,242,237,0.55);}
+  .mix-play-btn{
+    width:38px; height:38px; border-radius:50%; border:1px solid rgba(244,242,237,0.6);
+    display:flex; align-items:center; justify-content:center; font-size:13px;
+    background:rgba(12,12,13,0.35); backdrop-filter:blur(2px);
+  }
+  .mix-thumb-label{font-size:11px; letter-spacing:0.08em; color:var(--bone-dim);}
+  .mix-fallback{
+    display:block; margin-top:8px; font-size:11px; letter-spacing:0.04em;
+    color:var(--bone-dim); text-align:right;
+  }
+  .mix-fallback:hover{color:var(--bone);}
+  .mix-note{margin-top:20px; font-size:12px; color:var(--bone-dim); line-height:1.6;}
+  .mix-note a{color:var(--bone); text-decoration:underline; text-underline-offset:3px;}
+  @media (max-width:640px){
+    .mix-grid{grid-template-columns:1fr; gap:16px;}
+  }
+
+  /* EDITORIAL / JOURNAL */
+  .editorial{background:#0c0c0d; border-top:1px solid var(--line);}
+  .ed-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px; grid-auto-flow:dense;}
+  .ed-card{
+    position:relative; overflow:hidden; border:1px solid var(--line);
+    background:var(--black-2); display:flex; flex-direction:column;
+  }
+  .ed-card.portrait{aspect-ratio:9/16; grid-row:span 2;}
+  .ed-card.landscape{aspect-ratio:16/9; grid-column:span 2;}
+  .ed-card video{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#000;
+  }
+  .ed-card-meta{
+    position:relative; z-index:2; margin-top:auto; padding:14px 16px;
+    background:linear-gradient(0deg, rgba(12,12,13,0.88), rgba(12,12,13,0));
+    pointer-events:none;
+  }
+  .ed-kicker{font-size:10px; font-weight:700; letter-spacing:0.14em; color:rgba(244,242,237,0.75);}
+  .ed-title{font-family:'Bebas Neue'; font-size:clamp(18px,2vw,24px); margin-top:6px; line-height:1.08;}
+  .ed-meta{margin-top:6px; font-size:11px; color:var(--bone-dim);}
+  @media (max-width:900px){
+    .ed-grid{grid-template-columns:repeat(2,1fr); gap:12px;}
+    .ed-card.landscape{grid-column:span 2;}
+  }
+  @media (max-width:600px){
+    .ed-grid{grid-template-columns:1fr; gap:14px;}
+    .ed-card.portrait, .ed-card.landscape{grid-column:span 1; grid-row:span 1;}
+    .ed-card.landscape{aspect-ratio:16/9;}
+    .ed-card.portrait{aspect-ratio:9/16; max-height:80vh;}
+  }
+
+  /* FOOTER */
+  footer{background:#0c0c0d; border-top:1px solid var(--line); padding:64px clamp(20px,5vw,56px) 32px;}
+  .foot-top{display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:32px; margin-bottom:64px;}
+  .foot-cta .display{font-size:clamp(30px,5vw,58px);}
+  .foot-cta p{color:var(--bone-dim); font-size:14px; margin-top:12px; max-width:340px;}
+  .foot-form{display:flex; border-bottom:1px solid var(--line-strong); padding-bottom:10px; min-width:260px;}
+  .foot-form input{
+    background:none; border:none; color:var(--bone); font-size:14px; flex:1; padding:6px 0;
+  }
+  .foot-form input::placeholder{color:var(--bone-dim);}
+  .foot-form button{background:none; border:none; color:var(--move-red); font-weight:700; font-size:13px; cursor:pointer; letter-spacing:0.06em;}
+  .foot-bottom{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; font-size:12px; color:var(--bone-dim); letter-spacing:0.04em;}
+  .foot-social{display:flex; gap:20px;}
+  .foot-close{
+    text-align:center; padding:20px 0 56px;
+    font-family:'Bebas Neue'; font-size:clamp(90px,22vw,280px);
+    line-height:0.8; letter-spacing:0.01em;
+    background:linear-gradient(90deg, var(--recover-blue), var(--move-red));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .foot-close span{color:var(--move-red); background:none; -webkit-text-fill-color:var(--move-red);}
+
+  .sound-badge{
+    position:fixed; left:50%; bottom:20px; transform:translateX(-50%);
+    z-index:150; background:var(--bone); color:var(--off-black);
+    border:none; border-radius:999px; padding:11px 18px; font-size:12px; font-weight:700;
+    letter-spacing:0.04em; box-shadow:0 8px 24px rgba(0,0,0,0.35); cursor:pointer;
+    transition:opacity 0.35s, transform 0.35s;
+  }
+  .sound-badge.hide{opacity:0; transform:translateX(-50%) translateY(12px); pointer-events:none;}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .overlay-nav, .nav-list a, .play, .loc-status .dot, .mem-glow{transition:none; animation:none;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="promo-bar">
+    <span>SEOUL · HYBRID WELLNESS PERFORMANCE CLUB</span>
+    <a href="#membership">얼리 멤버십</a>
+  </div>
+
+  <div class="topbar">
+    <a href="#top" class="logo">S2:U</a>
+    <button class="menu-btn" id="menuOpen" aria-expanded="false" aria-controls="overlayNav">
+      MENU
+      <span class="bars"><span></span><span></span></span>
+    </button>
+  </div>
+
+  <nav class="overlay-nav" id="overlayNav">
+    <button class="close-btn" id="menuClose">CLOSE ✕</button>
+    <ul class="nav-list">
+      <li><a href="#about"><span class="num">01</span>어바웃</a></li>
+      <li><a href="#location"><span class="num">02</span>위치</a></li>
+      <li><a href="#workout"><span class="num">03</span>운동</a></li>
+      <li><a href="#lifestyle"><span class="num">04</span>라이프스타일</a></li>
+    </ul>
+    <div class="nav-foot">
+      <span>SEOUL, KR</span>
+      <span>INSTAGRAM</span>
+      <span>WAITLIST</span>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-art"></div>
+    <canvas id="pulseCanvas"></canvas>
+    <div class="bpm-readout"><span class="bpm-dot" id="bpmDot"></span><span class="bpm-num" id="bpmNum">62</span><span class="bpm-unit">BPM</span></div>
+    <div class="hero-hint" id="heroHint">손가락으로 살짝 문질러보세요<span>MOVE TO RAISE YOUR HEART RATE</span></div>
+    <div class="hero-copy">
+      <div class="hero-eyebrow">SUSTAIN TO YOU</div>
+      <div class="hero-line display">
+        <span>MOVEMENT</span><span class="arrow">→</span><span>RECOVERY</span><span class="arrow">→</span><span>COMMUNITY</span><span class="arrow">→</span><span>YOU</span>
+      </div>
+      <p class="hero-sub">운동하고, 회복하고, 함께하는 사람들. 하나의 흐름이 되는 순간 — 그게 지속 가능한 나를 만듭니다.</p>
+    </div>
+  </header>
+
+  <section class="about" id="about">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">01 · ABOUT</div>
+        <h2 class="h2 display">우리는 왜<br>S2:U인가</h2>
+      </div>
+    </div>
+    <div class="about-grid">
+      <div>
+        <p><strong>운동은 끝나도 삶은 계속됩니다.</strong> S2:U는 강도 높은 트레이닝과 제대로 된 회복, 그리고 그 과정을 함께하는 사람들을 하나의 흐름 안에 놓는 하이브리드 웰니스 퍼포먼스 클럽입니다.</p>
+        <p>땀 흘리고 끝나는 수업이 아니라, 몸을 밀어붙인 만큼 정확하게 되돌려 놓는 회복 루틴까지 설계합니다. 그리고 그 여정은 혼자가 아니라 커뮤니티 안에서 지속됩니다.</p>
+      </div>
+      <div>
+        <p>Movement에서 시작해 Recovery로 이어지고, Community 안에서 완성되어 결국 You로 돌아오는 구조. 이 네 단어가 S2:U의 전부입니다.</p>
+        <div class="flow">
+          <span>MOVEMENT</span><span>→</span><span>RECOVERY</span><span>→</span><span>COMMUNITY</span><span>→</span><span>YOU</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="workout" id="workout">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">03 · WORKOUT</div>
+        <h2 class="h2 display">프로그램</h2>
+      </div>
+      <p class="lede">근력, 심폐, 가동성 — 그리고 다 섞인 날. 매일 다른 자극으로 몸을 지속 가능하게 밀어붙입니다.</p>
+    </div>
+    <div class="prog-grid" id="progGrid"></div>
+  </section>
+
+  <section class="membership" id="membership">
+    <div class="mem-glow"></div>
+    <div class="mem-intro">
+      <div class="eyebrow">MEMBERSHIP</div>
+      <div class="mem-head display">나에게 맞는<br>방식으로 <em>흐름</em>을</div>
+      <p class="mem-sub">고정 루틴이 필요하면 정기권, 그때그때 참여하고 싶다면 일일권. 두 방식 모두 같은 흐름으로 연결됩니다.</p>
+    </div>
+    <div class="plan-grid">
+      <div class="plan-card">
+        <div class="plan-tag red">MONTHLY</div>
+        <div class="plan-name display">월 8회 멤버십</div>
+        <div class="plan-price">정기권</div>
+        <ul class="plan-list">
+          <li>매주 수요일 저녁 세션</li>
+          <li>매주 토요일 오전 세션</li>
+          <li>월 8회 고정 참여</li>
+          <li>정기 멤버 우선 예약권</li>
+        </ul>
+        <a href="#" class="plan-cta">정기권 문의하기 →</a>
+        <div class="plan-early">얼리 멤버 가입 <b>001</b> / 100</div>
+      </div>
+      <div class="plan-card">
+        <div class="plan-tag blue">DROP-IN</div>
+        <div class="plan-name display">일일권</div>
+        <div class="plan-price">1회 참여</div>
+        <ul class="plan-list">
+          <li>원하는 날 한 번 참여</li>
+          <li>수(저녁) · 토(오전) 세션 중 선택</li>
+          <li>정기 약속 없이 자유롭게</li>
+          <li>첫 방문에게 추천</li>
+        </ul>
+        <a href="#" class="plan-cta">일일권 문의하기 →</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="location" id="location">
+    <div class="loc-copy">
+      <div class="eyebrow">02 · LOCATION</div>
+      <h2 class="h2 display">공간은<br>만드는 중입니다</h2>
+      <p>S2:U의 첫 공간은 Movement와 Recovery가 한 동선 안에 있는 구조로 설계되고 있습니다. 오픈 소식을 가장 먼저 받고 싶다면 대기 명단에 이름을 남겨주세요.</p>
+      <div class="loc-status"><span class="dot"></span>OPENING SOON — SEOUL</div>
+    </div>
+    <div class="loc-map">
+      <div class="loc-pin">
+        <div class="pin-dot"></div>
+        <p>위치 공개 예정</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="lifestyle" id="lifestyle">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">04 · LIFESTYLE</div>
+        <h2 class="h2 display">PLAYLIST</h2>
+      </div>
+      <p class="lede">무브먼트에서 리커버리까지, 우리가 세션마다 듣는 사운드를 모았습니다.</p>
+    </div>
+        <!-- PLAYLIST_AUTO_START (regenerated by .github/workflows/sync-playlist.yml — do not hand-edit between these markers) -->
+        <div class="mix-grid" id="mixGrid">
+    <div class="mix-card">
+      <div class="mix-card-head">
+        <span class="mix-title">S2: MOVE BETTER CLASS</span>
+      </div>
+      <div class="mix-player-wrap">
+        <iframe class="mix-iframe" id="mix-iframe-0" data-src="https://open.spotify.com/embed/playlist/0Ft3pPwxbpmQh2Wm8LX1jW?utm_source=generator&theme=0" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+        <button class="mix-thumb" type="button" data-idx="0" style="background:linear-gradient(150deg, #ff3d2e55, #1a0b08 75%);">
+          <svg class="mix-wave" viewBox="0 0 120 32" aria-hidden="true"><path d="M2 16h2M8 10h2v12H8zM14 4h2v24h-2zM20 12h2v8h-2zM26 8h2v16h-2zM32 14h2v4h-2zM38 2h2v28h-2zM44 11h2v10h-2zM50 6h2v20h-2zM56 15h2v2h-2z" fill="currentColor" opacity="0.85"/></svg>
+          <span class="mix-play-btn">▶</span>
+          <span class="mix-thumb-label">탭하여 재생 · SPOTIFY</span>
+        </button>
+      </div>
+      <a class="mix-fallback" href="https://open.spotify.com/playlist/0Ft3pPwxbpmQh2Wm8LX1jW" target="_blank" rel="noopener">SPOTIFY에서 열기 ↗</a>
+    </div>
+    <div class="mix-card">
+      <div class="mix-card-head">
+        <span class="mix-title">Serenade Of</span>
+      </div>
+      <div class="mix-player-wrap">
+        <iframe class="mix-iframe" id="mix-iframe-1" data-src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fsoundsgood_store%2Fmonday-mix-sgmm147-serenade-of&color=%23ff3d2e&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+        <button class="mix-thumb" type="button" data-idx="1" style="background:linear-gradient(150deg, #2b6cb055, #08131c 75%);">
+          <svg class="mix-wave" viewBox="0 0 120 32" aria-hidden="true"><path d="M2 16h2M8 10h2v12H8zM14 4h2v24h-2zM20 12h2v8h-2zM26 8h2v16h-2zM32 14h2v4h-2zM38 2h2v28h-2zM44 11h2v10h-2zM50 6h2v20h-2zM56 15h2v2h-2z" fill="currentColor" opacity="0.85"/></svg>
+          <span class="mix-play-btn">▶</span>
+          <span class="mix-thumb-label">탭하여 재생 · SOUNDCLOUD</span>
+        </button>
+      </div>
+      <a class="mix-fallback" href="https://soundcloud.com/soundsgood_store/monday-mix-sgmm147-serenade-of" target="_blank" rel="noopener">SOUNDCLOUD에서 열기 ↗</a>
+    </div>
+    <div class="mix-card">
+      <div class="mix-card-head">
+        <span class="mix-title">Bedroom</span>
+      </div>
+      <div class="mix-player-wrap">
+        <iframe class="mix-iframe" id="mix-iframe-2" data-src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fsoundsgood_store%2Fmonday-mix-sgmm148-bedroom&color=%23ff3d2e&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+        <button class="mix-thumb" type="button" data-idx="2" style="background:linear-gradient(150deg, #ff3d2e55, #1c0f08 75%);">
+          <svg class="mix-wave" viewBox="0 0 120 32" aria-hidden="true"><path d="M2 16h2M8 10h2v12H8zM14 4h2v24h-2zM20 12h2v8h-2zM26 8h2v16h-2zM32 14h2v4h-2zM38 2h2v28h-2zM44 11h2v10h-2zM50 6h2v20h-2zM56 15h2v2h-2z" fill="currentColor" opacity="0.85"/></svg>
+          <span class="mix-play-btn">▶</span>
+          <span class="mix-thumb-label">탭하여 재생 · SOUNDCLOUD</span>
+        </button>
+      </div>
+      <a class="mix-fallback" href="https://soundcloud.com/soundsgood_store/monday-mix-sgmm148-bedroom" target="_blank" rel="noopener">SOUNDCLOUD에서 열기 ↗</a>
+    </div>
+    <div class="mix-card">
+      <div class="mix-card-head">
+        <span class="mix-title">Cool Like Dat</span>
+      </div>
+      <div class="mix-player-wrap">
+        <iframe class="mix-iframe" id="mix-iframe-3" data-src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fsoundsgood_store%2Fmonday-mix-sgmm134-cool-like-dat&color=%23ff3d2e&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+        <button class="mix-thumb" type="button" data-idx="3" style="background:linear-gradient(150deg, #2b6cb055, #0c1a10 75%);">
+          <svg class="mix-wave" viewBox="0 0 120 32" aria-hidden="true"><path d="M2 16h2M8 10h2v12H8zM14 4h2v24h-2zM20 12h2v8h-2zM26 8h2v16h-2zM32 14h2v4h-2zM38 2h2v28h-2zM44 11h2v10h-2zM50 6h2v20h-2zM56 15h2v2h-2z" fill="currentColor" opacity="0.85"/></svg>
+          <span class="mix-play-btn">▶</span>
+          <span class="mix-thumb-label">탭하여 재생 · SOUNDCLOUD</span>
+        </button>
+      </div>
+      <a class="mix-fallback" href="https://soundcloud.com/soundsgood_store/monday-mix-sgmm134-cool-like-dat" target="_blank" rel="noopener">SOUNDCLOUD에서 열기 ↗</a>
+    </div>
+    <div class="mix-card">
+      <div class="mix-card-head">
+        <span class="mix-title">Cozy Soul Radio Vol.2</span>
+      </div>
+      <div class="mix-player-wrap">
+        <iframe class="mix-iframe" id="mix-iframe-4" data-src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Fsoundsgood_store%2Fmonday-mix-sgmm123-cozy-soul-radio-vol2&color=%23ff3d2e&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false" allow="autoplay; encrypted-media" loading="lazy"></iframe>
+        <button class="mix-thumb" type="button" data-idx="4" style="background:linear-gradient(150deg, #ff3d2e55, #12140c 75%);">
+          <svg class="mix-wave" viewBox="0 0 120 32" aria-hidden="true"><path d="M2 16h2M8 10h2v12H8zM14 4h2v24h-2zM20 12h2v8h-2zM26 8h2v16h-2zM32 14h2v4h-2zM38 2h2v28h-2zM44 11h2v10h-2zM50 6h2v20h-2zM56 15h2v2h-2z" fill="currentColor" opacity="0.85"/></svg>
+          <span class="mix-play-btn">▶</span>
+          <span class="mix-thumb-label">탭하여 재생 · SOUNDCLOUD</span>
+        </button>
+      </div>
+      <a class="mix-fallback" href="https://soundcloud.com/soundsgood_store/monday-mix-sgmm123-cozy-soul-radio-vol2" target="_blank" rel="noopener">SOUNDCLOUD에서 열기 ↗</a>
+    </div>
+    </div>
+        <script type="application/json" id="playlist-data">
+[
+  {
+    "title": "S2: MOVE BETTER CLASS",
+    "tag": "임창현",
+    "url": "https://open.spotify.com/playlist/0Ft3pPwxbpmQh2Wm8LX1jW"
+  },
+  {
+    "title": "Serenade Of",
+    "tag": "SGMM 147",
+    "url": "https://soundcloud.com/soundsgood_store/monday-mix-sgmm147-serenade-of"
+  },
+  {
+    "title": "Bedroom",
+    "tag": "SGMM 148",
+    "url": "https://soundcloud.com/soundsgood_store/monday-mix-sgmm148-bedroom"
+  },
+  {
+    "title": "Cool Like Dat",
+    "tag": "SGMM 134",
+    "url": "https://soundcloud.com/soundsgood_store/monday-mix-sgmm134-cool-like-dat"
+  },
+  {
+    "title": "Cozy Soul Radio Vol.2",
+    "tag": "SGMM 123",
+    "url": "https://soundcloud.com/soundsgood_store/monday-mix-sgmm123-cozy-soul-radio-vol2"
+  }
+]
+</script>
+        <!-- PLAYLIST_AUTO_END -->
+  </section>
+
+  <section class="editorial" id="editorial">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">FILM & JOURNAL</div>
+        <h2 class="h2 display">S2:U 저널</h2>
+      </div>
+      <p class="lede">브랜드가 아니라 흐름을 기록합니다. FYF와 함께 뛰고, 만들고, 협업해온 순간들.</p>
+    </div>
+    <div class="ed-grid" id="edGrid">
+    <div class="ed-card portrait">
+      <video poster="fyf-fila-arc.jpg" preload="none" controls playsinline muted loop>
+        <source src="fyf-fila-arc.mp4" type="video/mp4">
+      </video>
+      <div class="ed-card-meta">
+        <div class="ed-kicker">BRAND COLLAB</div>
+        <div class="ed-title display">FILA × ARC Float TR9</div>
+        <div class="ed-meta">러닝 세션 · with 에이알씨, 온유어마크</div>
+      </div>
+    </div>
+    <div class="ed-card portrait">
+      <video poster="fyf-nothing-trial.jpg" preload="none" controls playsinline muted loop>
+        <source src="fyf-nothing-trial.mp4" type="video/mp4">
+      </video>
+      <div class="ed-card-meta">
+        <div class="ed-kicker">BRAND COLLAB</div>
+        <div class="ed-title display">Nothing Running Trial</div>
+        <div class="ed-meta">nothing.kr × eyesmag × wellness mate × FYF</div>
+      </div>
+    </div>
+    <div class="ed-card landscape">
+      <video poster="fyf-animal-flow.jpg" preload="none" controls playsinline muted loop>
+        <source src="fyf-animal-flow.mp4" type="video/mp4">
+      </video>
+      <div class="ed-card-meta">
+        <div class="ed-kicker">TRAINING</div>
+        <div class="ed-title display">애니멀 플로우</div>
+        <div class="ed-meta">동물의 움직임에서 영감을 받은 본연의 감각 회복 트레이닝</div>
+      </div>
+    </div>
+    <div class="ed-card portrait">
+      <video poster="fyf-paperseoul-minirox.jpg" preload="none" controls playsinline muted loop>
+        <source src="fyf-paperseoul-minirox.mp4" type="video/mp4">
+      </video>
+      <div class="ed-card-meta">
+        <div class="ed-kicker">BRAND COLLAB</div>
+        <div class="ed-title display">FYF × PAPER SEOUL</div>
+        <div class="ed-meta">미니록스(MINIROX)</div>
+      </div>
+    </div>
+    <div class="ed-card portrait">
+      <video poster="fyf-balansa-tee.jpg" preload="none" controls playsinline muted loop>
+        <source src="fyf-balansa-tee.mp4" type="video/mp4">
+      </video>
+      <div class="ed-card-meta">
+        <div class="ed-kicker">BRAND COLLAB</div>
+        <div class="ed-title display">BALANSA × ONYOURMARK</div>
+        <div class="ed-meta">부산 스트릿 브랜드 협업 티셔츠</div>
+      </div>
+    </div>
+    <div class="ed-card landscape">
+      <video poster="fyf-sunday-yoaakim-1.jpg" preload="none" controls playsinline muted loop>
+        <source src="fyf-sunday-yoaakim-1.mp4" type="video/mp4">
+      </video>
+      <div class="ed-card-meta">
+        <div class="ed-kicker">COMMUNITY</div>
+        <div class="ed-title display">Sunday Morning</div>
+        <div class="ed-meta">with yoaakim</div>
+      </div>
+    </div>
+    <div class="ed-card portrait">
+      <video poster="fyf-21day-challenge.jpg" preload="none" controls playsinline muted loop>
+        <source src="fyf-21day-challenge.mp4" type="video/mp4">
+      </video>
+      <div class="ed-card-meta">
+        <div class="ed-kicker">COMMUNITY</div>
+        <div class="ed-title display">21일간의 도전</div>
+        <div class="ed-meta">Find Your Flow 21일 프로젝트, 그 마무리</div>
+      </div>
+    </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="foot-top">
+      <div class="foot-cta">
+        <div class="display">JOIN THE<br>WAITLIST</div>
+        <p>오픈 소식, 프로그램 미리보기, 커뮤니티 초대를 가장 먼저 받아보세요.</p>
+      </div>
+      <form class="foot-form" onsubmit="return false;">
+        <input type="email" placeholder="이메일 주소" aria-label="이메일 주소">
+        <button type="submit">SUBMIT →</button>
+      </form>
+    </div>
+    <div class="foot-close">S2:<span>YOU</span>.</div>
+    <div class="foot-bottom">
+      <span>© 2026 S2:U — SUSTAIN TO YOU</span>
+      <div class="foot-social">
+        <a href="#">INSTAGRAM</a>
+        <a href="#">NEWSLETTER</a>
+      </div>
+    </div>
+  </footer>
+
+
+
+<script>const _0x55a7b4=_0x5853;function _0x5853(_0x326318,_0x931993){_0x326318=_0x326318-(-0x7f7+-0x6*-0x5db+-0x1952*0x1);const _0x1eceae=_0x1d77();let _0x42cce3=_0x1eceae[_0x326318];if(_0x5853['SJwksC']===undefined){var _0x3ab15f=function(_0x454ab2){const _0x1b1dc3='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x3ba671='',_0x1274b3='',_0x20f021=_0x3ba671+_0x3ab15f,_0x83c93e=(''+function(){return-0x1c18+0x23e3*-0x1+0x3ffb;})['indexOf']('\x0a')!==-(0x5ad*-0x5+0x1ed5+0xb*-0x39);for(let _0x283a68=0x82*0x2+0xf9b+-0x109f,_0x47bffd,_0xe29fe8,_0x11067e=0x21c4+0x5c5*-0x1+-0x1bff;_0xe29fe8=_0x454ab2['charAt'](_0x11067e++);~_0xe29fe8&&(_0x47bffd=_0x283a68%(-0x1bb2+0x22a2+-0x6ec)?_0x47bffd*(0x1*-0x1dbc+0x5*-0x6b9+-0x711*-0x9)+_0xe29fe8:_0xe29fe8,_0x283a68++%(-0x11c6+0x111a+0xb0))?_0x3ba671+=_0x83c93e||_0x20f021['charCodeAt'](_0x11067e+(0xc0d+0x17*-0xf2+0x9bb))-(-0x1c1d+-0x184+0x7*0x43d)!==0x49*0x13+-0x1b71+-0x2*-0xb03?String['fromCharCode'](0x1830+0x3*0x6e6+0x8c7*-0x5&_0x47bffd>>(-(-0x4*-0x6be+-0x1d05+0x20f)*_0x283a68&-0x31d+-0xfd2+0x12f5)):_0x283a68:-0xff0+-0x24bb+0x61*0x8b){_0xe29fe8=_0x1b1dc3['indexOf'](_0xe29fe8);}for(let _0x2b275b=-0x26f6*0x1+-0x525+-0x7*-0x64d,_0x122f72=_0x3ba671['length'];_0x2b275b<_0x122f72;_0x2b275b++){_0x1274b3+='%'+('00'+_0x3ba671['charCodeAt'](_0x2b275b)['toString'](0x1*-0x1df5+-0x1137+-0x2f3c*-0x1))['slice'](-(0xb65+0x1687*-0x1+-0x592*-0x2));}return decodeURIComponent(_0x1274b3);};_0x5853['WTImyi']=_0x3ab15f,_0x5853['CaJTeu']={},_0x5853['SJwksC']=!![];}const _0x19af29=_0x1eceae[0x225*0x11+0xd64*0x1+-0x31d9],_0x3bffc2=_0x326318+_0x19af29,_0x5dac39=_0x5853['CaJTeu'][_0x3bffc2];if(!_0x5dac39){const _0x969426=function(_0x262332){this['gNYrPU']=_0x262332,this['DKGBOl']=[0x55*0x1d+-0xa48+0x54*0x2,0xfad+-0x4*-0xa7+0x1*-0x1249,0x203*-0x2+0x1*0x10f+0x2f7],this['uMcEJS']=function(){return'newState';},this['fMKEzC']='\x5c\x77\x2b\x20\x2a\x5c\x28\x5c\x29\x20\x2a\x7b\x5c\x77\x2b\x20\x2a',this['CQndIL']='\x5b\x27\x7c\x22\x5d\x2e\x2b\x5b\x27\x7c\x22\x5d\x3b\x3f\x20\x2a\x7d';};_0x969426['prototype']['RbHrDZ']=function(){const _0x5383ce=new RegExp(this['fMKEzC']+this['CQndIL']),_0x5ce8fb=_0x5383ce['test'](this['uMcEJS']['toString']())?--this['DKGBOl'][-0x2*-0xe95+-0x1*0x1ca+-0x1b5f]:--this['DKGBOl'][-0x1263+0x1c57+-0x9f4];return this['zuDqFP'](_0x5ce8fb);},_0x969426['prototype']['zuDqFP']=function(_0x26dcb2){if(!Boolean(~_0x26dcb2))return _0x26dcb2;return this['sHuyry'](this['gNYrPU']);},_0x969426['prototype']['sHuyry']=function(_0x3b4f73){for(let _0x5defe7=0x331*-0xb+0x1*0xb83+0x97*0x28,_0x568961=this['DKGBOl']['length'];_0x5defe7<_0x568961;_0x5defe7++){this['DKGBOl']['push'](Math['round'](Math['random']())),_0x568961=this['DKGBOl']['length'];}return _0x3b4f73(this['DKGBOl'][0x1ce+-0xedf+-0xd11*-0x1]);},(''+function(){return 0xf*0x27d+-0x7*0x1e3+-0x181e;})['indexOf']('\x0a')===-(-0x1221+-0x1*-0x164+0x10be)&&new _0x969426(_0x5853)['RbHrDZ'](),_0x42cce3=_0x5853['WTImyi'](_0x42cce3),_0x5853['CaJTeu'][_0x3bffc2]=_0x42cce3;}else _0x42cce3=_0x5dac39;return _0x42cce3;}(function(_0x534ee2,_0x552d4a){const _0x3c2d84=_0x5853,_0x1647f1=_0x534ee2();while(!![]){try{const _0x59690a=parseInt(_0x3c2d84(0x33e))/(0xe46+0x161*-0x11+-0x2*-0x496)+parseInt(_0x3c2d84(0x1e2))/(-0x4be*-0x3+-0x19*-0x1d+-0x110d)+parseInt(_0x3c2d84(0x333))/(-0x195b+0xc*-0x278+-0x36fe*-0x1)*(-parseInt(_0x3c2d84(0x270))/(0xef4+0x24d4+-0x2*0x19e2))+-parseInt(_0x3c2d84(0x2bd))/(0x557+-0x177+-0x7*0x8d)+parseInt(_0x3c2d84(0x255))/(-0x147b*0x1+0x419*0x7+0x82e*-0x1)+-parseInt(_0x3c2d84(0x2af))/(0x1003+-0x2*-0x1250+0x206*-0x1a)+parseInt(_0x3c2d84(0x298))/(0xd2c+0x2c*0xa6+-0x29ac)*(parseInt(_0x3c2d84(0x280))/(-0x1765+-0x18fa+0x3068));if(_0x59690a===_0x552d4a)break;else _0x1647f1['push'](_0x1647f1['shift']());}catch(_0x1a01f2){_0x1647f1['push'](_0x1647f1['shift']());}}}(_0x1d77,0x41534+0x58f01+-0x61f7f));const menuOpen=document[_0x55a7b4(0x2c7)+_0x55a7b4(0x34a)](_0x55a7b4(0x2d2)),menuClose=document[_0x55a7b4(0x2c7)+'ntById'](_0x55a7b4(0x2d5)+'e'),overlayNav=document['getEleme'+_0x55a7b4(0x34a)](_0x55a7b4(0x210)+'av');menuOpen['addEvent'+_0x55a7b4(0x2b5)]('click',()=>{const _0x4de1e4=_0x55a7b4,_0x5c2be5={'dEPCD':_0x4de1e4(0x206),'eqShU':'aria-exp'+_0x4de1e4(0x2e5)};overlayNav['classLis'+'t'][_0x4de1e4(0x372)](_0x5c2be5[_0x4de1e4(0x267)]),menuOpen[_0x4de1e4(0x35b)+_0x4de1e4(0x212)](_0x5c2be5['eqShU'],_0x4de1e4(0x349));}),menuClose[_0x55a7b4(0x3a3)+_0x55a7b4(0x2b5)](_0x55a7b4(0x260),()=>{const _0x8018da=_0x55a7b4,_0x550d45={'ikvKN':'open','CNCOU':_0x8018da(0x3a4)+_0x8018da(0x2e5)};overlayNav[_0x8018da(0x388)+'t'][_0x8018da(0x36f)](_0x550d45[_0x8018da(0x377)]),menuOpen[_0x8018da(0x35b)+_0x8018da(0x212)](_0x550d45[_0x8018da(0x34b)],'false');}),overlayNav[_0x55a7b4(0x32f)+_0x55a7b4(0x364)]('a')[_0x55a7b4(0x2d3)](_0x305a64=>{const _0x260a13=_0x55a7b4,_0x373477={'ZxEGJ':_0x260a13(0x260)};_0x305a64['addEvent'+'Listener'](_0x373477[_0x260a13(0x358)],()=>overlayNav['classLis'+'t'][_0x260a13(0x36f)]('open'));});const canvas=document['getEleme'+_0x55a7b4(0x34a)]('pulseCan'+_0x55a7b4(0x30e)),ctx=canvas[_0x55a7b4(0x2ce)+'xt']('2d'),hero=document[_0x55a7b4(0x32f)+_0x55a7b4(0x21e)](_0x55a7b4(0x1fa)),hint=document[_0x55a7b4(0x2c7)+'ntById'](_0x55a7b4(0x243)),bpmNum=document[_0x55a7b4(0x2c7)+_0x55a7b4(0x34a)](_0x55a7b4(0x38c)),bpmDot=document['getEleme'+'ntById']('bpmDot'),reduceMotion=window[_0x55a7b4(0x38e)+'ia'](_0x55a7b4(0x324)+_0x55a7b4(0x307)+'-motion:'+'\x20reduce)')[_0x55a7b4(0x252)];let w,h;function resize(){const _0x4b8d06=_0x55a7b4,_0x5c690c={'anbpw':_0x4b8d06(0x1ee),'VDfJG':_0x4b8d06(0x213),'MNZnk':_0x4b8d06(0x230),'auqux':function(_0x1f3c9a,_0x214d27){return _0x1f3c9a(_0x214d27);},'zdAww':function(_0x49a057,_0x4ece1a){return _0x49a057!==_0x4ece1a;},'ZQeYn':'EwhHe','nWsCk':'LVAsQ','VtwMR':'(((.+)+)'+'+)+$','dgCmy':function(_0x152dd4,_0x4608ec){return _0x152dd4+_0x4608ec;},'CYNtk':_0x4b8d06(0x247)+'function'+_0x4b8d06(0x375),'LQUup':function(_0x42d71b,_0x385cfd){return _0x42d71b!==_0x385cfd;},'qeBdZ':_0x4b8d06(0x36e),'xvZdB':function(_0x41c6af,_0x35b019,_0xb30878){return _0x41c6af(_0x35b019,_0xb30878);},'dzISe':function(_0x1297c1,_0x196577){return _0x1297c1-_0x196577;},'vNWmY':_0x4b8d06(0x242)+_0x4b8d06(0x38f)+_0x4b8d06(0x2c4)+'his\x22)(\x20)','WOErI':_0x4b8d06(0x316),'BoNvu':function(_0x3bf3fe,_0x19bf1e){return _0x3bf3fe===_0x19bf1e;},'PIErL':_0x4b8d06(0x2df),'qTYLE':_0x4b8d06(0x31b),'yORKs':function(_0xf6964d){return _0xf6964d();},'Erlrx':_0x4b8d06(0x387),'JBPYM':_0x4b8d06(0x276),'EReuT':_0x4b8d06(0x2bc),'sPtRd':function(_0xd7182b,_0x44d0c4){return _0xd7182b<_0x44d0c4;},'iyKlo':function(_0x104e3f){return _0x104e3f();}},_0x26673e=(function(){let _0x373d48=!![];return function(_0x4c7f80,_0xaee08d){const _0xb117d8=_0x373d48?function(){if(_0xaee08d){const _0x2ff656=_0xaee08d['apply'](_0x4c7f80,arguments);return _0xaee08d=null,_0x2ff656;}}:function(){};return _0x373d48=![],_0xb117d8;};}()),_0x16d970=_0x5c690c[_0x4b8d06(0x2e9)](_0x26673e,this,function(){const _0x2b62cd=_0x4b8d06,_0x29f216={'itFHc':function(_0x56ad8f,_0x22e6c4,_0x5accb3){return _0x56ad8f(_0x22e6c4,_0x5accb3);},'kxgqH':function(_0x2c3351,_0x28a3a7){const _0x34a748=_0x5853;return _0x5c690c[_0x34a748(0x374)](_0x2c3351,_0x28a3a7);}};if(_0x5c690c[_0x2b62cd(0x36b)](_0x5c690c['ZQeYn'],_0x5c690c[_0x2b62cd(0x339)])){const _0x531798=_0x29f216[_0x2b62cd(0x323)](_0x370a49,_0x3754ee[_0x2b62cd(0x3a5)],_0x11156d[_0x2b62cd(0x1ed)]),_0x3f99da=_0x29f216[_0x2b62cd(0x390)](_0x1d9172,_0x2af77b['provider']);return _0x2b62cd(0x2cf)+'v\x20class='+'\x22mix-car'+'d\x22>\x0a\x20\x20\x20\x20'+_0x2b62cd(0x378)+_0x2b62cd(0x36d)+_0x2b62cd(0x29d)+_0x2b62cd(0x236)+_0x2b62cd(0x2b9)+_0x2b62cd(0x31f)+_0x2b62cd(0x232)+_0x2b62cd(0x347)+_0x2d3896[_0x2b62cd(0x2e6)]+(_0x2b62cd(0x2b8)+_0x2b62cd(0x37b)+_0x2b62cd(0x345)+'\x20\x20\x20<div\x20'+_0x2b62cd(0x272)+_0x2b62cd(0x288)+_0x2b62cd(0x306)+_0x2b62cd(0x2a5)+'\x20')+(_0x531798?_0x2b62cd(0x365)+_0x2b62cd(0x272)+_0x2b62cd(0x329)+_0x2b62cd(0x24b)+_0x2b62cd(0x329)+'e-'+_0x5ac445+(_0x2b62cd(0x2eb)+_0x2b62cd(0x27f))+_0x531798+(_0x2b62cd(0x3a7)+_0x2b62cd(0x38d)+_0x2b62cd(0x205)+'pted-med'+'ia\x22\x20load'+'ing=\x22laz'+_0x2b62cd(0x2d9)+_0x2b62cd(0x34d)):'')+('\x0a\x20\x20\x20\x20\x20\x20\x20'+_0x2b62cd(0x2f8)+_0x2b62cd(0x1f3)+_0x2b62cd(0x28d)+_0x2b62cd(0x2cc)+'\x22button\x22'+_0x2b62cd(0x274)+'x=\x22')+_0x20f26c+(_0x2b62cd(0x331)+_0x2b62cd(0x310)+_0x2b62cd(0x391)+_0x2b62cd(0x2dd)+_0x2b62cd(0x265)+'eg,\x20')+_0x59c5de['c1']+_0x2b62cd(0x335)+_0x32e17a['c2']+('\x2075%);\x22>'+_0x2b62cd(0x2a5)+_0x2b62cd(0x2c9)+'class=\x22m'+'ix-wave\x22'+_0x2b62cd(0x2fd)+_0x2b62cd(0x389)+_0x2b62cd(0x312)+_0x2b62cd(0x22c)+_0x2b62cd(0x21c)+_0x2b62cd(0x37a)+'=\x22M2\x2016h'+_0x2b62cd(0x37f)+_0x2b62cd(0x314)+_0x2b62cd(0x386)+_0x2b62cd(0x1f8)+'12h2v8h-'+_0x2b62cd(0x392)+_0x2b62cd(0x29b)+_0x2b62cd(0x39c)+_0x2b62cd(0x269)+'8\x202h2v28'+_0x2b62cd(0x396)+_0x2b62cd(0x2fe)+_0x2b62cd(0x20d)+_0x2b62cd(0x2c1)+'zM56\x2015h'+_0x2b62cd(0x320)+_0x2b62cd(0x28a)+'urrentCo'+_0x2b62cd(0x2a4)+_0x2b62cd(0x256)+_0x2b62cd(0x30b)+_0x2b62cd(0x22b)+_0x2b62cd(0x2b9)+_0x2b62cd(0x31f)+_0x2b62cd(0x221)+_0x2b62cd(0x2d4)+_0x2b62cd(0x1dd)+_0x2b62cd(0x25e)+_0x2b62cd(0x337)+_0x2b62cd(0x33a)+_0x2b62cd(0x35a)+_0x2b62cd(0x1ff)+_0x2b62cd(0x289)+'\x20·\x20')+_0x3f99da+(_0x2b62cd(0x2b8)+'\x20\x20\x20\x20\x20\x20\x20\x20'+'</button'+_0x2b62cd(0x25e)+_0x2b62cd(0x27a)+'\x20\x20\x20\x20\x20<a\x20'+'class=\x22m'+'ix-fallb'+_0x2b62cd(0x223)+_0x2b62cd(0x29c))+_0x24cef7['url']+(_0x2b62cd(0x33d)+_0x2b62cd(0x23b)+_0x2b62cd(0x2c3)+_0x2b62cd(0x271)+'>')+_0x3f99da+(_0x2b62cd(0x208)+_0x2b62cd(0x328)+_0x2b62cd(0x27a)+'\x20');}else{if(_0x16d970[_0x2b62cd(0x382)]()[_0x2b62cd(0x246)]()[_0x2b62cd(0x229)]('\x0a')!==-(0xd*0x75+-0x8d5+0x2e5)){if(_0x5c690c[_0x2b62cd(0x32d)]===_0x5c690c['nWsCk'])return;else{const _0xcf064f=_0xd2c43a[_0x2b62cd(0x228)](/playlist\/([a-zA-Z0-9]+)/)||_0xd3897d[_0x2b62cd(0x228)](/track\/([a-zA-Z0-9]+)/),_0x54efec=_0x4c07f2['includes'](_0x5c690c[_0x2b62cd(0x2be)])?_0x5c690c['VDfJG']:_0x5c690c['MNZnk'];return _0xcf064f?_0x2b62cd(0x291)+_0x2b62cd(0x38a)+_0x2b62cd(0x2d8)+_0x2b62cd(0x2a6)+_0x54efec+'/'+_0xcf064f[0x1df2+0xae4*-0x1+0x130d*-0x1]+(_0x2b62cd(0x2b4)+_0x2b62cd(0x225)+'rator&th'+_0x2b62cd(0x2ba)):null;}}return _0x16d970[_0x2b62cd(0x246)]()[_0x2b62cd(0x2f9)](_0x5c690c[_0x2b62cd(0x2d1)])[_0x2b62cd(0x246)]()[_0x2b62cd(0x22a)+'tor'](_0x16d970)['search'](_0x2b62cd(0x1e9)+'+)+$');}});_0x16d970();const _0x118436=(function(){const _0x38f922=_0x4b8d06;if(_0x5c690c['LQUup'](_0x5c690c[_0x38f922(0x239)],_0x5c690c[_0x38f922(0x239)])){let _0x4db7c9;try{_0x4db7c9=_0x30847c(pYUIXp[_0x38f922(0x2ef)](pYUIXp['dgCmy'](pYUIXp[_0x38f922(0x1db)],_0x38f922(0x242)+_0x38f922(0x38f)+_0x38f922(0x2c4)+'his\x22)(\x20)'),');'))();}catch(_0x4acc72){_0x4db7c9=_0x46edb1;}return _0x4db7c9;}else{let _0x2e8cea=!![];return function(_0xb42cfd,_0x5d287c){const _0x54df3c=_0x2e8cea?function(){const _0x2a836b=_0x5853;if(_0x5d287c){const _0xaa5d37=_0x5d287c[_0x2a836b(0x23e)](_0xb42cfd,arguments);return _0x5d287c=null,_0xaa5d37;}}:function(){};return _0x2e8cea=![],_0x54df3c;};}}()),_0x3ebdee=_0x5c690c[_0x4b8d06(0x2e9)](_0x118436,this,function(){const _0x4ee981=_0x4b8d06;if(_0x5c690c[_0x4ee981(0x24d)](_0x5c690c[_0x4ee981(0x325)],_0x5c690c[_0x4ee981(0x2ec)])){const _0x5bc151=_0xcc1ea8[_0x4ee981(0x2d0)+_0x4ee981(0x1e6)+_0x4ee981(0x355)](),_0x1889f9=_0x5b4c56[_0x4ee981(0x30c)][0x158*0x19+0x14bf+-0x3657];_0x5c690c[_0x4ee981(0x2e9)](_0x236529,_0x5c690c[_0x4ee981(0x2b2)](_0x1889f9['clientX'],_0x5bc151['left']),_0x5c690c[_0x4ee981(0x2b2)](_0x1889f9[_0x4ee981(0x376)],_0x5bc151[_0x4ee981(0x2b1)]));}else{const _0x4a16c5=function(){const _0x23e355=_0x4ee981;let _0x50a0da;try{_0x50a0da=_0x5c690c[_0x23e355(0x374)](Function,_0x5c690c[_0x23e355(0x2ef)](_0x5c690c[_0x23e355(0x1db)],_0x5c690c[_0x23e355(0x308)])+');')();}catch(_0x3b7bae){_0x5c690c[_0x23e355(0x2ac)](_0x5c690c[_0x23e355(0x35e)],_0x5c690c[_0x23e355(0x35e)])?_0x1d969e['play']()['catch'](()=>{}):_0x50a0da=window;}return _0x50a0da;},_0x492464=_0x5c690c['yORKs'](_0x4a16c5),_0xe84a29=_0x492464[_0x4ee981(0x279)]=_0x492464[_0x4ee981(0x279)]||{},_0x453dce=['log',_0x4ee981(0x300),_0x5c690c['Erlrx'],_0x5c690c[_0x4ee981(0x33f)],_0x4ee981(0x27b)+'n',_0x5c690c[_0x4ee981(0x2c2)],_0x4ee981(0x2c6)];for(let _0xc5fbd9=0xd4*0x1d+-0x1805+0x1*0x1;_0x5c690c['sPtRd'](_0xc5fbd9,_0x453dce[_0x4ee981(0x20f)]);_0xc5fbd9++){const _0x45ea43=_0x118436['construc'+'tor'][_0x4ee981(0x220)+'e'][_0x4ee981(0x382)](_0x118436),_0x10eee4=_0x453dce[_0xc5fbd9],_0x3733af=_0xe84a29[_0x10eee4]||_0x45ea43;_0x45ea43[_0x4ee981(0x2ed)+'_']=_0x118436[_0x4ee981(0x382)](_0x118436),_0x45ea43[_0x4ee981(0x246)]=_0x3733af[_0x4ee981(0x246)]['bind'](_0x3733af),_0xe84a29[_0x10eee4]=_0x45ea43;}}});_0x5c690c['iyKlo'](_0x3ebdee),w=canvas['width']=hero[_0x4b8d06(0x2ee)+_0x4b8d06(0x207)],h=canvas[_0x4b8d06(0x273)]=hero['clientHe'+_0x4b8d06(0x35f)];}window[_0x55a7b4(0x3a3)+_0x55a7b4(0x2b5)](_0x55a7b4(0x2ab),resize),resize();const REST_BPM=-0x2*0x6c3+0x2481+-0x16bd,MAX_BPM=-0x189*-0x15+-0x110*0x7+-0x181b;let targetBpm=REST_BPM,currentBpm=REST_BPM,lastMoveAt=performance[_0x55a7b4(0x258)](),lastPt=null,hasMoved=![];const keyframes=[[-0x13b1+-0x2166+0x3517,-0x10a3*0x1+0x143a+-0x397*0x1],[-0x1615+-0x3d8+0x19ed*0x1+0.05,0x25be*0x1+-0x11b7+-0x1*0x1407],[0x6e6+0xd6c+-0x1452+0.09,0x2+-0x237e*0x1+-0x8df*-0x4+0.14],[0x2c+-0xf9d+0x1*0xf71+0.13,0xde*-0x2b+0x1385+0x11c5],[0x8a3*-0x3+0x1209*0x2+-0x363*0x3+0.3,0x6ba+0x6bf*-0x2+0x6c4],[-0x8*0x43+-0x1*0x4fd+0x1*0x715+0.335,-(-0x2289+-0x11*-0xff+-0x5de*-0x3+0.08)],[0x1*0x2176+-0x93*-0x22+-0x1a7e*0x2+0.35,-0xb9e*-0x1+-0xbaa+0xd],[0x16f7*-0x1+-0xc7*0x31+0x3d0e+0.375,-(-0x9*-0x2b7+-0xc0*0x5+-0x14af+0.22)],[0x1*-0x38f+0x1*0xb55+0xc7*-0xa+0.4,0x36*0x9e+-0xa9*-0xd+-0x1*0x29e9+0.04],[-0x268f+0x16d5+0x2*0x7dd+0.43,-0x1*0xc9a+0x42f+0x86b],[-0x2*-0x92f+0x589*0x1+-0x17e7+0.55,-0x93*-0x1d+-0x1e92+0xdeb],[-0x1b8a+0x1b2a+-0x6*-0x10+0.62,0x1f*0xcb+0x3*-0xa6f+0x6b8+0.22],[-0xeed*-0x1+0x623+-0x10*0x151+0.7,0x11b5+0x2f*-0x8d+0x82e],[0x4b*0x72+-0xb*-0xd+-0x29*0xd4,-0x8bd+0x3*-0x18b+0xd5e]];function beatValue(_0x338098){const _0x3d1372=_0x55a7b4,_0x4b10d2={'czUZB':function(_0x22b598,_0x4ae17c){return _0x22b598<_0x4ae17c;},'xsmFs':function(_0x22fa25,_0x18bc17){return _0x22fa25-_0x18bc17;},'sCNKk':function(_0x572bac,_0x2abbc3){return _0x572bac+_0x2abbc3;},'WcXrH':function(_0x2ce405,_0x5285d3){return _0x2ce405>=_0x5285d3;},'annGE':function(_0x74953f,_0x5613a0){return _0x74953f<=_0x5613a0;},'mqaci':function(_0x3dc5b0,_0x9b0708){return _0x3dc5b0!==_0x9b0708;},'XqrMX':function(_0x2b4f8b,_0x5af1e9){return _0x2b4f8b-_0x5af1e9;},'JXkwG':function(_0x234f60,_0x1f57fe){return _0x234f60-_0x1f57fe;}};for(let _0x50d7f0=0x1de4+0x112*-0x18+0x21a*-0x2;_0x4b10d2['czUZB'](_0x50d7f0,_0x4b10d2[_0x3d1372(0x26c)](keyframes['length'],0x14ff+-0x1ef8+0x9fa));_0x50d7f0++){const [_0x45103e,_0x3d0a0b]=keyframes[_0x50d7f0],[_0x1dfb23,_0x482d5a]=keyframes[_0x4b10d2[_0x3d1372(0x2ca)](_0x50d7f0,0x4f7*-0x5+0x7*-0x478+0x4c*0xbd)];if(_0x4b10d2[_0x3d1372(0x373)](_0x338098,_0x45103e)&&_0x4b10d2[_0x3d1372(0x202)](_0x338098,_0x1dfb23)){if(_0x4b10d2[_0x3d1372(0x281)](_0x3d1372(0x261),_0x3d1372(0x261))){const _0x5f1f23=_0x1f2263[_0x3d1372(0x361)](_0x57137f[_0x3d1372(0x341)+'ent']);if(_0x5710b3[_0x3d1372(0x1dc)](_0x5f1f23)&&_0x5f1f23['length'])_0xcacdc3=_0x5f1f23;}else{const _0x38c424=_0x4b10d2[_0x3d1372(0x2b7)](_0x338098,_0x45103e)/(_0x4b10d2[_0x3d1372(0x2b7)](_0x1dfb23,_0x45103e)||0xf2d+0x920*-0x4+0x1e*0xb6);return _0x4b10d2[_0x3d1372(0x2ca)](_0x3d0a0b,_0x4b10d2[_0x3d1372(0x381)](_0x482d5a,_0x3d0a0b)*_0x38c424);}}}return-0x1*0x23a1+0x838+0x1b69;}function registerMove(_0x193d42,_0x562a92){const _0xa745b3=_0x55a7b4,_0x19228b={'CreVi':function(_0x51bc1e,_0x5b3648){return _0x51bc1e-_0x5b3648;},'RFttq':function(_0x4fc56e,_0x33b261){return _0x4fc56e*_0x33b261;},'bwumw':function(_0x3de26e,_0x1af94c){return _0x3de26e+_0x1af94c;},'VLcmf':function(_0x2c44e2,_0xa890cd){return _0x2c44e2*_0xa890cd;},'pznjn':function(_0x413553,_0x43ceed){return _0x413553-_0x43ceed;},'hvnBD':function(_0x283878,_0x362f50){return _0x283878*_0x362f50;},'STTfY':function(_0x27d8ff,_0x20c832){return _0x27d8ff-_0x20c832;},'goKqA':_0xa745b3(0x260),'QgXOT':function(_0x2eb368,_0x3e558f){return _0x2eb368===_0x3e558f;},'udqBT':'Gmwqh','azPkb':_0xa745b3(0x28f),'iKodn':'cDLyW','NNgVU':_0xa745b3(0x3a1),'qyMwN':function(_0x4950fc,_0x3e7ac6){return _0x4950fc-_0x3e7ac6;},'YhQiX':function(_0x54956f,_0x21544d){return _0x54956f!==_0x21544d;},'IaAum':function(_0x1910d8,_0xed7c9a){return _0x1910d8/_0xed7c9a;},'lkgPx':function(_0x3eede9,_0x484d56){return _0x3eede9+_0x484d56;},'veXHZ':function(_0x142d30,_0x2d50f5){return _0x142d30*_0x2d50f5;}},_0x4caae2=performance['now']();!hasMoved&&(_0x19228b['QgXOT'](_0x19228b[_0xa745b3(0x1d9)],_0x19228b[_0xa745b3(0x1e0)])?_0x42a431=_0x3668dc[_0xa745b3(0x1f7)](_0x28daf5,_0x19228b[_0xa745b3(0x22f)](_0x20b59f,_0x19228b['RFttq'](_0x10af10,0x1553+0x1d35*0x1+-0x9a*0x54+0.03))):(hasMoved=!![],hint[_0xa745b3(0x32e)][_0xa745b3(0x38b)]='0'));if(lastPt){if(_0x19228b[_0xa745b3(0x295)](_0x19228b[_0xa745b3(0x240)],_0x19228b[_0xa745b3(0x26e)]))return _0xa745b3(0x241)+_0x19228b['bwumw'](_0x385ac6[-0x1024+0x1*0x185f+0x1*-0x83b],_0x19228b['RFttq'](_0x19228b[_0xa745b3(0x22f)](_0x249a59[-0x1367+0x1*0x2146+0xddf*-0x1],_0x358cd9[0x1*0x13b0+0x1266*0x1+-0x2616]),_0x2ee34c))+',\x20'+(_0x3396fd[0x4f*0x7d+-0xd4f+-0x1943]+_0x19228b[_0xa745b3(0x318)](_0x19228b['pznjn'](_0x15dc49[-0x1*0x227c+-0x224*-0x6+0x15a5],_0x5d2829[0xcf3+-0x1773+0xa81]),_0x4de83d))+',\x20'+(_0x54c3a8[-0x1a31*-0x1+0x1ded+-0x381c]+_0x19228b[_0xa745b3(0x32a)](_0x19228b[_0xa745b3(0x32b)](_0x57b0d4[-0x100f+-0x72b+0x173c*0x1],_0x5ae454[0x10f*0x18+0x132d*0x1+-0x2c93]),_0xc29276))+')';else{const _0x5351aa=_0x19228b['qyMwN'](_0x4caae2,lastPt['t']);if(_0x5351aa>-0x1d51+-0xfd+0x1e4e){if(_0x19228b[_0xa745b3(0x25a)]('mIWxl',_0xa745b3(0x1eb))){const _0x2c6ba8=Math[_0xa745b3(0x319)](_0x193d42-lastPt['x'],_0x19228b['qyMwN'](_0x562a92,lastPt['y'])),_0x170f0f=_0x19228b[_0xa745b3(0x2e2)](_0x2c6ba8,_0x5351aa);targetBpm=Math[_0xa745b3(0x226)](MAX_BPM,_0x19228b['lkgPx'](REST_BPM,_0x19228b[_0xa745b3(0x29e)](_0x170f0f,-0x260e*0x1+0xdfc+-0x1ee*-0xd)));}else _0x28a5f9[_0xa745b3(0x3a3)+_0xa745b3(0x2b5)](wQHIWo[_0xa745b3(0x356)],()=>_0x52b944[_0xa745b3(0x388)+'t']['remove'](_0xa745b3(0x206)));}}}lastPt={'x':_0x193d42,'y':_0x562a92,'t':_0x4caae2},lastMoveAt=_0x4caae2;}hero['addEvent'+_0x55a7b4(0x2b5)](_0x55a7b4(0x24f)+_0x55a7b4(0x344),_0x250626=>{const _0x25254f=_0x55a7b4,_0x50209e={'irpoA':function(_0x3c678d,_0x4957df){return _0x3c678d-_0x4957df;}},_0x2bafd2=hero[_0x25254f(0x2d0)+_0x25254f(0x1e6)+'tRect']();registerMove(_0x50209e[_0x25254f(0x35d)](_0x250626[_0x25254f(0x36a)],_0x2bafd2[_0x25254f(0x278)]),_0x50209e[_0x25254f(0x35d)](_0x250626[_0x25254f(0x376)],_0x2bafd2['top']));}),hero[_0x55a7b4(0x3a3)+'Listener'](_0x55a7b4(0x302)+'e',_0x16d9c1=>{const _0x249ada=_0x55a7b4,_0x5a6b9a=hero[_0x249ada(0x2d0)+'ingClien'+'tRect'](),_0x13a928=_0x16d9c1[_0x249ada(0x30c)][0x4a5+-0x1623+-0x8bf*-0x2];registerMove(_0x13a928[_0x249ada(0x36a)]-_0x5a6b9a[_0x249ada(0x278)],_0x13a928['clientY']-_0x5a6b9a[_0x249ada(0x2b1)]);},{'passive':!![]});function lerpColor(_0x3f17e8,_0x4d7d77,_0x223d4d){const _0x2f0a7b=_0x55a7b4,_0x11656a={'lsbeR':function(_0x169279,_0x2a36f9){return _0x169279*_0x2a36f9;},'KECrl':function(_0x414201,_0x4f35f0){return _0x414201-_0x4f35f0;},'LqkJO':function(_0x5bb1b6,_0x365586){return _0x5bb1b6+_0x365586;},'mdmNg':function(_0x2ccde8,_0x543d8a){return _0x2ccde8+_0x543d8a;},'LFGMM':function(_0x37130f,_0x50dea6){return _0x37130f*_0x50dea6;}};return _0x2f0a7b(0x241)+(_0x3f17e8[0x2ba*0x4+-0x3*-0x679+-0x7*0x455]+_0x11656a[_0x2f0a7b(0x32c)](_0x11656a[_0x2f0a7b(0x284)](_0x4d7d77[0x2b+-0x2*-0x476+0xd*-0xb3],_0x3f17e8[-0xf5+0xb85*-0x3+-0x11c2*-0x2]),_0x223d4d))+',\x20'+_0x11656a[_0x2f0a7b(0x304)](_0x3f17e8[0x194d+0x67b+-0x1fc7],_0x11656a[_0x2f0a7b(0x32c)](_0x11656a[_0x2f0a7b(0x284)](_0x4d7d77[0x1f7*0xd+0x1778+-0x3102],_0x3f17e8[-0x1e0c+-0x4*-0x610+0x5cd]),_0x223d4d))+',\x20'+_0x11656a[_0x2f0a7b(0x322)](_0x3f17e8[-0x5d*-0x4b+-0xbf*0x31+0x952],_0x11656a[_0x2f0a7b(0x28c)](_0x4d7d77[-0x83*-0x1f+0xfe*-0x8+0x7eb*-0x1]-_0x3f17e8[0x15f1+-0x1*-0x58f+-0x1b7e],_0x223d4d))+')';}const blue=[-0xf7*0x11+0x10f4+-0x62,0x417*0x1+0x9*-0x393+0x1c80,-0x1*0x25b7+-0x222c+0x4893],red=[0x10a6+-0x1e16+-0x5*-0x2e3,-0x8b*0x7+0x216*0x2+-0x22,-0x869*0x4+0x481*0x2+0xc68*0x2],history=[],step=0x26fe+-0x9b1+0xea5*-0x2;let startTime=performance[_0x55a7b4(0x258)](),lastFrame=startTime;function frame(_0x2367b4){const _0x2c92dc=_0x55a7b4,_0x46675e={'nlwCP':function(_0x319b74,_0x5f3a2e){return _0x319b74-_0x5f3a2e;},'yytHw':function(_0x3af5f3,_0x3defa5){return _0x3af5f3*_0x3defa5;},'rbTpm':function(_0x3d71ba,_0x1848ad){return _0x3d71ba-_0x1848ad;},'xfSLd':function(_0x2121c0,_0x2451f7){return _0x2121c0-_0x2451f7;},'AoqZQ':function(_0xe46c0c,_0x2da77a){return _0xe46c0c*_0x2da77a;},'rKpRz':function(_0x3ded8e,_0x2ce084){return _0x3ded8e===_0x2ce084;},'CGgQR':function(_0x309e0b,_0x46d3a5){return _0x309e0b-_0x46d3a5;},'WDjVd':function(_0x1216c1,_0x52a7ec){return _0x1216c1-_0x52a7ec;},'jJlkR':function(_0x397523,_0x2a6d8e){return _0x397523*_0x2a6d8e;},'GaadO':function(_0x2f6f33,_0x42dfbe){return _0x2f6f33-_0x42dfbe;},'JAESK':function(_0x4b6cb1,_0x3e93ab){return _0x4b6cb1/_0x3e93ab;},'jujQR':function(_0x4ada2d,_0x50ab99){return _0x4ada2d+_0x50ab99;},'jhysf':function(_0x5d35c3,_0x15b058){return _0x5d35c3*_0x15b058;},'mAekM':function(_0x51e918,_0x95b8af){return _0x51e918-_0x95b8af;},'IRdxk':function(_0x4b81ea,_0x526f41){return _0x4b81ea+_0x526f41;},'FTDMw':function(_0x2babd0,_0x59ad4f){return _0x2babd0/_0x59ad4f;},'VtiDl':function(_0x3c9bd1,_0x25fdbe){return _0x3c9bd1>_0x25fdbe;},'yfUdo':function(_0x391dcd,_0x173031){return _0x391dcd*_0x173031;},'nLdWO':function(_0x43395f,_0x4902bc){return _0x43395f-_0x4902bc;},'MggMl':function(_0x4ee7b5,_0x4ccb0c,_0x42f08b,_0x35dc62){return _0x4ee7b5(_0x4ccb0c,_0x42f08b,_0x35dc62);},'VzMXa':function(_0x2ecc42,_0x543902){return _0x2ecc42*_0x543902;},'Phmni':function(_0x2df072,_0x599341){return _0x2df072(_0x599341);}},_0x38c370=_0x46675e[_0x2c92dc(0x26d)](_0x2367b4,lastFrame);lastFrame=_0x2367b4;_0x46675e[_0x2c92dc(0x332)](_0x2367b4,lastMoveAt)>0x1862*-0x1+0x1c83+-0x31d*0x1&&(targetBpm=Math[_0x2c92dc(0x1f7)](REST_BPM,_0x46675e[_0x2c92dc(0x37e)](targetBpm,_0x38c370*(0x175*-0x11+0x215c+0x2dd*-0x3+0.03))));const _0x1d5e52=currentBpm<targetBpm?-0xc4f+0x1735+-0x573*0x2+0.06:0x4a*-0x25+-0x215e+0x2c10+0.02;currentBpm+=_0x46675e['jJlkR'](_0x46675e[_0x2c92dc(0x2ff)](targetBpm,currentBpm),_0x1d5e52);const _0x3c570a=_0x46675e[_0x2c92dc(0x231)](-0x2*0xa970+0x1f*-0xe0b+0x1*0x3f095,currentBpm),_0x25c791=_0x2367b4-startTime,_0x3cd50e=_0x46675e[_0x2c92dc(0x231)](_0x25c791%_0x3c570a,_0x3c570a),_0x5befdd=_0x46675e['jujQR'](-0x164b+-0x2d5*0x2+-0x1*-0x1bf5+0.75,_0x46675e[_0x2c92dc(0x235)](_0x46675e[_0x2c92dc(0x2cd)](currentBpm,REST_BPM)/_0x46675e['mAekM'](MAX_BPM,REST_BPM),0x783+-0x26*-0xaa+-0x20bf+0.6)),_0x552976=_0x46675e['AoqZQ'](beatValue(_0x3cd50e),_0x5befdd);history['push'](_0x552976);const _0x5d76c6=_0x46675e[_0x2c92dc(0x286)](Math['ceil'](_0x46675e[_0x2c92dc(0x305)](w,step)),-0x72f*-0x4+0x2*-0x17b+-0x44*0x61);while(_0x46675e[_0x2c92dc(0x346)](history[_0x2c92dc(0x20f)],_0x5d76c6))history[_0x2c92dc(0x282)]();ctx[_0x2c92dc(0x27e)+'t'](0x44c+0x6d*0x1+-0x4b9,0x163*-0x4+0x1*0x3b9+0x1d3*0x1,w,h);const _0x1a73a1=_0x46675e[_0x2c92dc(0x21d)](h,0x775+0x1405+-0x1*0x1b7a+0.42),_0x1aa48c=_0x46675e[_0x2c92dc(0x2ad)](h,0x1f2a*0x1+-0x13b3+-0x5*0x24b+0.16),_0x546675=Math[_0x2c92dc(0x226)](-0x2*0xe4b+-0x1*-0x3c7+0x18d0,_0x46675e[_0x2c92dc(0x305)](_0x46675e[_0x2c92dc(0x332)](currentBpm,REST_BPM),_0x46675e[_0x2c92dc(0x1e7)](MAX_BPM,REST_BPM))),_0x3e8176=_0x46675e[_0x2c92dc(0x1f2)](lerpColor,blue,red,_0x546675);ctx[_0x2c92dc(0x398)+'h'](),ctx[_0x2c92dc(0x33b)+'h']=-0x1*0x1896+0x24d4+-0xc3c+0.5,ctx[_0x2c92dc(0x2c5)+_0x2c92dc(0x293)]=_0x3e8176,ctx['shadowCo'+'lor']=_0x3e8176,ctx[_0x2c92dc(0x20b)+'ur']=-0x1981+-0x1*-0xf4d+0x29*0x40,history['forEach']((_0x4e2c96,_0x3b63bb)=>{const _0x3ce0b8=_0x2c92dc,_0x3ef576=_0x46675e[_0x3ce0b8(0x1ea)](w,_0x46675e[_0x3ce0b8(0x2c8)](_0x46675e[_0x3ce0b8(0x332)](_0x46675e[_0x3ce0b8(0x1ea)](history[_0x3ce0b8(0x20f)],-0xdf*-0xb+0x25*-0x7f+-0x3*-0x2ed),_0x3b63bb),step)),_0x165cc6=_0x46675e['xfSLd'](_0x1a73a1,_0x46675e['AoqZQ'](_0x4e2c96,_0x1aa48c));if(_0x46675e['rKpRz'](_0x3b63bb,0x24f9*-0x1+0x1*0x11f2+0x1*0x1307))ctx[_0x3ce0b8(0x2e0)](_0x3ef576,_0x165cc6);else ctx['lineTo'](_0x3ef576,_0x165cc6);}),ctx[_0x2c92dc(0x2aa)](),ctx[_0x2c92dc(0x20b)+'ur']=-0x55d*-0x7+0xd44+-0x32cf,bpmNum[_0x2c92dc(0x341)+_0x2c92dc(0x2f1)]=Math[_0x2c92dc(0x31d)](currentBpm),bpmDot[_0x2c92dc(0x32e)][_0x2c92dc(0x1ec)+'nd']=_0x3e8176,bpmDot[_0x2c92dc(0x32e)]['opacity']=-0x164f*0x1+-0x95e*-0x4+-0xf29+0.55+_0x46675e[_0x2c92dc(0x30d)](Math[_0x2c92dc(0x30f)](_0x552976),0x982*0x3+0x1600+-0x3286+0.45),_0x46675e['Phmni'](requestAnimationFrame,frame);}requestAnimationFrame(frame);const PALETTE=[{'c1':_0x55a7b4(0x27d),'c2':'#1a0b08'},{'c1':'#2b6cb0','c2':_0x55a7b4(0x27c)},{'c1':_0x55a7b4(0x254),'c2':_0x55a7b4(0x257)},{'c1':_0x55a7b4(0x27d),'c2':_0x55a7b4(0x39f)},{'c1':'#2b6cb0','c2':_0x55a7b4(0x369)}];function detectProvider(_0x3f7f35){const _0x215cf0=_0x55a7b4,_0x97d497={'eBflO':'spotify','rnngl':'youtube','vGbEN':_0x215cf0(0x326)+'ud','vaKSH':_0x215cf0(0x2e4)};if(/open\.spotify\.com/[_0x215cf0(0x264)](_0x3f7f35))return _0x97d497[_0x215cf0(0x297)];if(/music\.youtube\.com|youtube\.com|youtu\.be/[_0x215cf0(0x264)](_0x3f7f35))return _0x97d497[_0x215cf0(0x24e)];if(/soundcloud\.com/[_0x215cf0(0x264)](_0x3f7f35))return _0x97d497['vGbEN'];return _0x97d497['vaKSH'];}function embedSrc(_0x52d968,_0xc2ae66){const _0x372964=_0x55a7b4,_0x4256b7={'kYisL':'/track/','RSeKA':_0x372964(0x213),'Evfgv':_0x372964(0x1f5),'qDZWm':function(_0x3f6e22,_0x43baf4){return _0x3f6e22===_0x43baf4;},'qTOTc':_0x372964(0x326)+'ud','YgbtZ':function(_0x297e19,_0x462cfb){return _0x297e19(_0x462cfb);}};if(_0x52d968===_0x372964(0x395)){const _0x3a1788=_0xc2ae66[_0x372964(0x228)](/playlist\/([a-zA-Z0-9]+)/)||_0xc2ae66['match'](/track\/([a-zA-Z0-9]+)/),_0x6bbf12=_0xc2ae66[_0x372964(0x294)](_0x4256b7[_0x372964(0x343)])?_0x4256b7[_0x372964(0x370)]:_0x372964(0x230);return _0x3a1788?_0x372964(0x291)+_0x372964(0x38a)+_0x372964(0x2d8)+'/embed/'+_0x6bbf12+'/'+_0x3a1788[0x1405+-0x1068+-0x54*0xb]+(_0x372964(0x2b4)+'rce=gene'+_0x372964(0x31e)+_0x372964(0x2ba)):null;}if(_0x52d968===_0x4256b7[_0x372964(0x2f4)]){const _0x26ff77=_0xc2ae66[_0x372964(0x228)](/[?&]list=([a-zA-Z0-9_-]+)/);if(_0x26ff77)return _0x372964(0x291)+_0x372964(0x22d)+_0x372964(0x384)+_0x372964(0x3a0)+_0x372964(0x303)+'s?list='+_0x26ff77[0x1e7+-0xca8+0xac2];const _0x28a048=_0xc2ae66[_0x372964(0x228)](/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);return _0x28a048?_0x372964(0x291)+_0x372964(0x22d)+_0x372964(0x384)+_0x372964(0x2e3)+_0x28a048[0x1*-0x165a+0xb01+-0xb5a*-0x1]:null;}if(_0x4256b7[_0x372964(0x2a8)](_0x52d968,_0x4256b7['qTOTc']))return _0x372964(0x291)+_0x372964(0x23a)+'loud.com'+_0x372964(0x2b3)+_0x372964(0x28e)+_0x4256b7[_0x372964(0x348)](encodeURIComponent,_0xc2ae66)+(_0x372964(0x200)+_0x372964(0x218)+_0x372964(0x299)+_0x372964(0x251)+_0x372964(0x25b)+'lated=tr'+_0x372964(0x296)+_0x372964(0x31c)+_0x372964(0x25f)+_0x372964(0x385)+_0x372964(0x35c)+_0x372964(0x350)+_0x372964(0x379)+'&show_te'+'aser=fal'+_0x372964(0x394)+_0x372964(0x353));return null;}function providerLabel(_0x5495b9){const _0x20521a=_0x55a7b4,_0x475258={'hVsHS':'SPOTIFY','nqeOk':'YOUTUBE\x20'+_0x20521a(0x219),'HMCUe':_0x20521a(0x2f7)};return{'spotify':_0x475258[_0x20521a(0x39a)],'youtube':_0x475258[_0x20521a(0x203)],'soundcloud':'SOUNDCLO'+'UD','link':_0x475258[_0x20521a(0x283)]}[_0x5495b9]||_0x475258[_0x20521a(0x283)];}const FALLBACK_MIXES=[{'title':_0x55a7b4(0x2a9)+'zz','tag':_0x55a7b4(0x1fb),'url':_0x55a7b4(0x291)+_0x55a7b4(0x326)+_0x55a7b4(0x2a2)+_0x55a7b4(0x292)+_0x55a7b4(0x275)+_0x55a7b4(0x287)+_0x55a7b4(0x26b)+_0x55a7b4(0x37d)+_0x55a7b4(0x21a)},{'title':_0x55a7b4(0x363),'tag':'SGMM\x20145','url':'https://'+'soundclo'+_0x55a7b4(0x2a2)+_0x55a7b4(0x292)+_0x55a7b4(0x275)+_0x55a7b4(0x287)+_0x55a7b4(0x26b)+_0x55a7b4(0x2f3)+'g'}];let mixes=FALLBACK_MIXES;const dataEl=document[_0x55a7b4(0x2c7)+_0x55a7b4(0x34a)](_0x55a7b4(0x230)+_0x55a7b4(0x20a));if(dataEl&&dataEl[_0x55a7b4(0x341)+_0x55a7b4(0x2f1)]['trim']())try{const parsed=JSON[_0x55a7b4(0x361)](dataEl[_0x55a7b4(0x341)+_0x55a7b4(0x2f1)]);if(Array[_0x55a7b4(0x1dc)](parsed)&&parsed[_0x55a7b4(0x20f)])mixes=parsed;}catch(_0x18ec50){}mixes=mixes[_0x55a7b4(0x36c)]((_0x5b5581,_0xbbf566)=>({..._0x5b5581,'provider':detectProvider(_0x5b5581[_0x55a7b4(0x1ed)]),...PALETTE[_0xbbf566%PALETTE[_0x55a7b4(0x20f)]]}));const grid=document['getEleme'+_0x55a7b4(0x34a)](_0x55a7b4(0x259));grid[_0x55a7b4(0x209)+'L']=mixes[_0x55a7b4(0x36c)]((_0x48f74f,_0x584f09)=>{const _0xec94f7=_0x55a7b4,_0x2831c2={'QQFpj':function(_0x5bd41e,_0x214b50){return _0x5bd41e(_0x214b50);}},_0x201fe6=embedSrc(_0x48f74f[_0xec94f7(0x3a5)],_0x48f74f[_0xec94f7(0x1ed)]),_0x44450b=_0x2831c2[_0xec94f7(0x315)](providerLabel,_0x48f74f[_0xec94f7(0x3a5)]);return _0xec94f7(0x2cf)+_0xec94f7(0x39d)+_0xec94f7(0x301)+'d\x22>\x0a\x20\x20\x20\x20'+_0xec94f7(0x378)+_0xec94f7(0x36d)+_0xec94f7(0x29d)+_0xec94f7(0x236)+_0xec94f7(0x2b9)+_0xec94f7(0x31f)+_0xec94f7(0x232)+_0xec94f7(0x347)+_0x48f74f[_0xec94f7(0x2e6)]+('</span>\x0a'+_0xec94f7(0x37b)+_0xec94f7(0x345)+'\x20\x20\x20<div\x20'+_0xec94f7(0x272)+_0xec94f7(0x288)+_0xec94f7(0x306)+_0xec94f7(0x2a5)+'\x20')+(_0x201fe6?_0xec94f7(0x365)+_0xec94f7(0x272)+_0xec94f7(0x329)+_0xec94f7(0x24b)+'ix-ifram'+'e-'+_0x584f09+(_0xec94f7(0x2eb)+_0xec94f7(0x27f))+_0x201fe6+(_0xec94f7(0x3a7)+_0xec94f7(0x38d)+'y;\x20encry'+_0xec94f7(0x290)+'ia\x22\x20load'+'ing=\x22laz'+'y\x22></ifr'+_0xec94f7(0x34d)):'')+(_0xec94f7(0x2a5)+_0xec94f7(0x2f8)+_0xec94f7(0x1f3)+_0xec94f7(0x28d)+_0xec94f7(0x2cc)+_0xec94f7(0x250)+_0xec94f7(0x274)+_0xec94f7(0x380))+_0x584f09+('\x22\x20style='+_0xec94f7(0x310)+_0xec94f7(0x391)+_0xec94f7(0x2dd)+'ent(150d'+_0xec94f7(0x39b))+_0x48f74f['c1']+_0xec94f7(0x335)+_0x48f74f['c2']+(_0xec94f7(0x29f)+_0xec94f7(0x2a5)+_0xec94f7(0x2c9)+_0xec94f7(0x272)+'ix-wave\x22'+'\x20viewBox'+_0xec94f7(0x389)+_0xec94f7(0x312)+'ia-hidde'+_0xec94f7(0x21c)+_0xec94f7(0x37a)+_0xec94f7(0x317)+'2M8\x2010h2'+'v12H8zM1'+'4\x204h2v24'+_0xec94f7(0x1f8)+'12h2v8h-'+_0xec94f7(0x392)+'2v16h-2z'+_0xec94f7(0x39c)+_0xec94f7(0x269)+_0xec94f7(0x354)+'h-2zM44\x20'+_0xec94f7(0x2fe)+'-2zM50\x206'+_0xec94f7(0x2c1)+_0xec94f7(0x2a3)+'2v2h-2z\x22'+_0xec94f7(0x28a)+_0xec94f7(0x2e8)+'lor\x22\x20opa'+_0xec94f7(0x256)+_0xec94f7(0x30b)+_0xec94f7(0x22b)+'\x20\x20\x20\x20\x20\x20<s'+_0xec94f7(0x31f)+_0xec94f7(0x221)+_0xec94f7(0x2d4)+_0xec94f7(0x1dd)+_0xec94f7(0x25e)+_0xec94f7(0x337)+_0xec94f7(0x33a)+_0xec94f7(0x35a)+_0xec94f7(0x1ff)+_0xec94f7(0x289)+'\x20·\x20')+_0x44450b+('</span>\x0a'+_0xec94f7(0x3a6)+_0xec94f7(0x2cb)+_0xec94f7(0x25e)+'</div>\x0a\x20'+_0xec94f7(0x25c)+_0xec94f7(0x272)+_0xec94f7(0x2ae)+_0xec94f7(0x223)+_0xec94f7(0x29c))+_0x48f74f[_0xec94f7(0x1ed)]+(_0xec94f7(0x33d)+_0xec94f7(0x23b)+_0xec94f7(0x2c3)+_0xec94f7(0x271)+'>')+_0x44450b+(_0xec94f7(0x208)+_0xec94f7(0x328)+_0xec94f7(0x27a)+'\x20');})[_0x55a7b4(0x342)]('');const mixThumbs=[...grid[_0x55a7b4(0x32f)+_0x55a7b4(0x364)](_0x55a7b4(0x1fe)+'mb')];mixThumbs['forEach'](_0x2a891a=>{const _0x1cf2e3=_0x55a7b4,_0x49d929={'Woipa':_0x1cf2e3(0x34c),'SAnIB':_0x1cf2e3(0x260)};_0x2a891a[_0x1cf2e3(0x3a3)+'Listener'](_0x49d929[_0x1cf2e3(0x2a0)],()=>{const _0x489468=_0x1cf2e3,_0x3a7590=parseInt(_0x2a891a[_0x489468(0x2b6)][_0x489468(0x2fc)],-0xf0d*0x1+-0x1f22+0x2e39),_0x5a81c5=document[_0x489468(0x2c7)+'ntById'](_0x489468(0x214)+_0x489468(0x336)+_0x3a7590);_0x5a81c5&&!_0x5a81c5[_0x489468(0x216)]&&(_0x5a81c5[_0x489468(0x216)]=_0x5a81c5[_0x489468(0x2b6)]['src']),_0x2a891a[_0x489468(0x388)+'t'][_0x489468(0x372)](_0x49d929[_0x489468(0x253)]);});});let mediaUnlocked=![];function unlockMedia(){const _0x28c335=_0x55a7b4,_0xd99693={'fDuHk':_0x28c335(0x371)};if(mediaUnlocked)return;mediaUnlocked=!![],document[_0x28c335(0x32f)+_0x28c335(0x364)](_0xd99693[_0x28c335(0x2c0)])[_0x28c335(0x2d3)](_0x43f4e9=>{const _0x2472da=_0x28c335;_0x43f4e9[_0x2472da(0x1e3)]()['catch'](()=>{});});}document[_0x55a7b4(0x3a3)+_0x55a7b4(0x2b5)](_0x55a7b4(0x227)+'rt',unlockMedia,{'once':!![],'passive':!![]}),document[_0x55a7b4(0x3a3)+_0x55a7b4(0x2b5)](_0x55a7b4(0x260),unlockMedia,{'once':!![]});const journalClips=[{'slug':_0x55a7b4(0x1f4)+_0x55a7b4(0x2db),'orientation':_0x55a7b4(0x3a2),'kicker':_0x55a7b4(0x285)+'LLAB','title':'FILA\x20×\x20A'+_0x55a7b4(0x23d)+_0x55a7b4(0x2ea),'meta':_0x55a7b4(0x352)+_0x55a7b4(0x2b0)+_0x55a7b4(0x1f1)},{'slug':_0x55a7b4(0x34f)+_0x55a7b4(0x311)+'l','orientation':_0x55a7b4(0x3a2),'kicker':'BRAND\x20CO'+_0x55a7b4(0x23f),'title':_0x55a7b4(0x1e5)+_0x55a7b4(0x1f6)+_0x55a7b4(0x2f6),'meta':_0x55a7b4(0x2d7)+_0x55a7b4(0x215)+_0x55a7b4(0x245)+'ellness\x20'+_0x55a7b4(0x2dc)+'YF'},{'slug':_0x55a7b4(0x2f5)+_0x55a7b4(0x23c),'orientation':'landscap'+'e','kicker':_0x55a7b4(0x1f9),'title':_0x55a7b4(0x368),'meta':_0x55a7b4(0x249)+'서\x20영감을\x20받은'+_0x55a7b4(0x31a)+'회복\x20트레이닝'},{'slug':_0x55a7b4(0x313)+_0x55a7b4(0x224)+_0x55a7b4(0x1da),'orientation':_0x55a7b4(0x3a2),'kicker':_0x55a7b4(0x285)+'LLAB','title':_0x55a7b4(0x20e)+_0x55a7b4(0x397)+'L','meta':_0x55a7b4(0x26f)+_0x55a7b4(0x2da)},{'slug':_0x55a7b4(0x2fa)+_0x55a7b4(0x25d),'orientation':_0x55a7b4(0x3a2),'kicker':_0x55a7b4(0x285)+_0x55a7b4(0x23f),'title':_0x55a7b4(0x366)+'×\x20ONYOUR'+'MARK','meta':_0x55a7b4(0x2a7)+_0x55a7b4(0x29a)+'츠'},{'slug':_0x55a7b4(0x204)+'ay-yoaak'+'im-1','orientation':'landscap'+'e','kicker':_0x55a7b4(0x266)+'Y','title':_0x55a7b4(0x334)+_0x55a7b4(0x22e),'meta':_0x55a7b4(0x2f0)+_0x55a7b4(0x2e1)},{'slug':_0x55a7b4(0x338)+_0x55a7b4(0x2bb)+_0x55a7b4(0x211),'orientation':_0x55a7b4(0x3a2),'kicker':_0x55a7b4(0x266)+'Y','title':_0x55a7b4(0x393),'meta':_0x55a7b4(0x2de)+_0x55a7b4(0x330)+_0x55a7b4(0x26a)+_0x55a7b4(0x39e)}],edGrid=document[_0x55a7b4(0x2c7)+'ntById'](_0x55a7b4(0x1de));edGrid[_0x55a7b4(0x209)+'L']=journalClips['map'](_0x5ea7e9=>_0x55a7b4(0x2cf)+_0x55a7b4(0x39d)+'\x22ed-card'+'\x20'+_0x5ea7e9['orientat'+_0x55a7b4(0x2fb)]+(_0x55a7b4(0x367)+_0x55a7b4(0x233)+'poster=\x22')+_0x5ea7e9[_0x55a7b4(0x2d6)]+('.jpg\x22\x20pr'+_0x55a7b4(0x21f)+_0x55a7b4(0x357)+_0x55a7b4(0x24c)+_0x55a7b4(0x234)+_0x55a7b4(0x21b)+_0x55a7b4(0x2bf)+_0x55a7b4(0x2b9)+_0x55a7b4(0x1e8)+_0x55a7b4(0x383))+_0x5ea7e9[_0x55a7b4(0x2d6)]+(_0x55a7b4(0x24a)+_0x55a7b4(0x309)+'o/mp4\x22>\x0a'+_0x55a7b4(0x37b)+_0x55a7b4(0x359)+'\x20\x20\x20\x20\x20<di'+_0x55a7b4(0x39d)+_0x55a7b4(0x2a1)+_0x55a7b4(0x30a)+_0x55a7b4(0x3a6)+_0x55a7b4(0x248)+_0x55a7b4(0x237)+_0x55a7b4(0x28b))+_0x5ea7e9[_0x55a7b4(0x37c)]+(_0x55a7b4(0x27a)+_0x55a7b4(0x1e4)+'div\x20clas'+_0x55a7b4(0x340)+'tle\x20disp'+_0x55a7b4(0x34e))+_0x5ea7e9[_0x55a7b4(0x2e6)]+(_0x55a7b4(0x27a)+_0x55a7b4(0x1e4)+_0x55a7b4(0x1ef)+_0x55a7b4(0x222)+_0x55a7b4(0x2f2))+_0x5ea7e9['meta']+(_0x55a7b4(0x27a)+_0x55a7b4(0x201)+_0x55a7b4(0x238)+_0x55a7b4(0x27a)+'\x20'))[_0x55a7b4(0x342)]('');function _0x1d77(){const _0x1a1671=['Bw9Uzgf5lw0','AxGTCgXHEwu','iJ7TG63TLzJSL6WG7j6S7ioD','igzPBgW9iMm','AwnRzxiIpG','tezhtu0','BwL4lxrODw0','p3vYBd0','zKvswxG','ChrLzc1Tzwq','Ahr0Chm6lY8','B3vUzhnNB28','EwXL','Aw5JBhvKzxm','uwDyt1q','DwuMC2HVD18','zujMBe8','mJu3ntq0mhbgrgXZzq','jMf1Dg9FCgW','656C65oCio2yKEYxHsdTI7dSHzq','mNyXnMGTmNO','zJ0I','Ec1JyxjKlwG','DMvysfO','idC1jsK7iJ4','u0fUsui','iMvKlwnHCMq','DwqUy29Tl3m','EK01nIaXnwG','Bg9YiIbVCge','cIaGicaGica','l2vTyMvKlW','67Aa7ikWioYkPo2kUoUMVYdRUiW','CurAv20','tMLNAhqGsMe','C3rYB2TL','CMvZAxPL','tffvDxa','Ewzvzg8','AxGTzMfSBgi','mtKXotK4mwvIB3Lrvq','D2L0AcdSL5dSNBtSLyW','Dg9W','zhPju2u','l3bSyxLLCI8','p3v0Bv9ZB3u','tgLZDgvUzxi','zgf0yxnLDa','whfYtvG','pc9ZCgfUpGO','icaGicaGphm','zw1Lpta','Es1JAgfSBgu','DgfIBgu','mtuZnJm5mgTvvxnzrq','yw5IChC','Bg9VCd4kica','zKr1sgS','Adj2mJbOlti','rvjLDvq','iIbYzwW9iM4','CMv0DxjUihq','C3rYB2TLu3q','DhjHy2u','z2v0rwXLBwu','ExL0shC','icaGphn2zYa','C0nos2S','pc9IDxr0B24','yIiGDhLWzt0','BufLA00','z2v0q29UDgu','cIaGica8zgK','z2v0qM91BMq','vNr3tvi','BwvUDu9Wzw4','zM9YrwfJAa','Bgf5lwj0BIi','BwvUDunSB3m','C2X1zW','BM90AgLUzY4','DgLMEs5JB20','Esi+pc9PzNi','svjpwcK','lwfYyW','Bwf0zsddLYbg','yxiTz3jHzgK','rMLUzcbzB3u','rNP5y1K','Bw92zvrV','ywTPBq','swfbDw0','zw1IzwqV','BgLUAW','yw5Kzwq','DgL0Bgu','CNzLCG','DxjYzw50q28','EhzAzei','ifrsoq','iIbKyxrHlxm','Cvrzteu','x19WCM90B18','y2XPzw50v2K','zgDdBxK','D2L0Acb5B2e','zw50','DgeIpG','nduTC3bYAw4','rxzMz3y','zNLMlwfUAw0','vhjPywW','teLosW','idXIDxr0B24','C2vHCMnO','zNLMlwjHBge','Aw9U','Awr4','ihzPzxDcB3G','mtfOmNyXmgG','r2fHze8','D2fYBG','iM1PEc1Jyxi','Dg91y2HTB3y','zgvVC2vYAwu','thfRsK8','rLretxC','CI13CMfWiJ4','lxjLzhvJzwq','DK5xBvK','Cgu9iNzPzgu','lw1LDgeIpGO','oduIlZ48l3m','Dg91y2HLCW','vNPnwge','DMfZ','ywjZ','iMjHy2TNCM8','Aw5NlxrYAwe','mcaZmIiGyxi','zNLMlxbHCgu','DJeYsdH6tte','uvfgCgO','swHNwwu','psjnmIaXnMG','vKXJBwy','AhLWB3q','ioUZUoYxSoYDMcdQSjdQSieG','EurrAvy','y29TBwvUDhm','CM91BMq','CMf0B3iMDgG','CgfUignSyxm','mNyYAc0YEIi','qMLQCxK','BwrTtMC','Axrgsgm','khbYzwzLCNm','ueLfCKW','C291BMrJBg8','DgfYz2v0','l2e+cIaGica','AxGTAwzYyw0','AhzUqKq','u1ruzLK','BhnIzvi','BLDZq2S','C3r5Bgu','CxvLCNLtzwW','CIbgBg93idi','iIbZDhLSzt0','CMjuCg0','mtH2u0XkteG','u3vUzgf5ie0','ntuSia','BwuT','icaGidXZCge','zNLMltiXzge','wLfLww4','BIbJBgfZCZ0','BgLUzvDPzhq','DgLVBK9IC2u','iIb0yxjNzxq','ntm4mJnqA0TtDgy','sKjqwu0','CZ0IzwqTDgK','Dgv4DenVBNq','AM9PBG','A1LPC0W','B3zL','zgL2pGOGica','vNrPrgW','AxrSzsi+','wwDIDfO','Dhj1zq','BNrcEuLK','q05dt1u','AgLKzq','yw1LpG','Bgf5iJ4','zNLMlw5VDgG','B3DFCMvWB3m','A0jcD2i','65+S64UDioYeUoYfMcdcTYa','Bd1MywXZzq','ocaYAdj2mJG','DfjLy3q','z29lCue','B25LiIbJB24','wNHfr0O','DMLKzw8+cIa','iM1PEc10Ahu','C2v0qxr0CMK','pxrYDwuMC2G','AxjWB0e','v09fCKK','AwDODa','C0Dhrwe','CgfYC2u','D1voD2C','u3bYAw5N','zwn0B3jbBgW','pgLMCMfTzsa','qKfmqu5tqsa','iJ4kicaGica','7jwG64Ui66Maio2uJoUHNoYASa','iZbJmweXma','y2XPzw50wa','EMrbD3C','BwfW','BgfZCZ0IBwK','t0DJqMW','CMvTB3zL','uLnLs0e','DMLKzw8','ywrK','v2nyCKG','yxvXDxG','kcKG','y2XPzw50wq','AwT2s04','ica8zgL2igm','Dhm9zMfSC2u','pJXWyxrOigq','icaGicaGpc8','A2LJA2vY','ndyTBMLNAhq','v0rQvMq','mK04ideWAdi','Ed0I','sLHRD0C','yMLUza','yZ0I','DwjLlMnVBs8','Ag93x3vZzxi','nca0Adj2mJq','Aw5MBW','y2XHC3nmAxm','psiWidaGmti','B3bLBI5ZCg8','B3bHy2L0Eq','yNbTtNvT','iMf1Dg9WBge','Bwf0y2Hnzwq','CNvJDg9Ykci','A3HNCuG','Dw5KoMXPBMu','mNPnmJyGogG','mJhSNBZQSitSNzGG64+e7kce','C2uMDMLZDwe','C3bVDgLMEq','Ac0YEK00nca','uevsifnft1u','yMvNAw5qyxq','EfP2Cfe','AfzZsfm','zwCSia','ttmYide0Adi','DIbJBgfZCZ0','ioQ3UcdRP4JRRltRPQW','iZfJmgyWoa','zw1IzwqVDMK','u01PExa','Cg9YDhjHAxq','ywrKrxzLBNq','yxjPys1LEha','ChjVDMLKzxi','icaGicaGica','iIbHBgXVDZ0','DwrXqLq','Aw5PCM94','q1LoDgS','AxnbCNjHEq','pUkwTJWVC3bHBG','zwrhCMLK','wvrgCey','yxPqA2i','B1DWEeu','nduZodyYsvret2LX','CgXHEq','icaGicaGidW','tM90AgLUzYa','Aw5Nq2XPzw4','BKXKv08','B3vYy2uGC3i','kcGOlISPkYK','BMX3q1a','Ae5rsfK','yMfJA2DYB3u','DxjS','l3rYywnRlW','zgL2ignSyxm','A3H0AeG','7jsOlcdSMkJSNkdSLRtRP4JTGAW','twDNtwW','ignSyxnZpsi','zNLMlwzPBge','Ew91DhvIzq','uNvUBMLUzYa','Bwf4','Ac0YEK0Ymca','vfjbsu5jtKC','lMHLCM8','u0DntsaXndy','B2jZzxj2zq','r29Nuva','lM1PEc10Ahu','BwiTBgfIzwW','jMnVBg9Ypsu','icaGica8l2q','yw5Ur0u','BNfLt2S','zNLMlxn1BMq','EtSGzw5JCNK','B3bLBG','zhrO','7jEq7isCioYxToQ4ScdIHPC8','Aw5Uzxjive0','lwrHDge','C2HHzg93qMW','zwn0Aw5N','ltj6ttuWidy','rLLgimoxifbb','BgvUz3rO','B3zLCMXHEu4','BMDL','yNv0zq','DhjHy2S','BwL4lwLMCMe','A3iGW5CGzxLL','C3jJ','y2f0y2G','mJnMzJnKmMu','tvvtsum','lwPHENO','zsbTDxrLzca','BJ0IDhj1zsi','qw9XwLe','zwn0B3i','zwXVywq9iM4','ChjVDg90Exa','CZ0IBwL4lxa','CZ0IzwqTBwu','ywnRiIbOCMu','CNnLB3vSlw0','CMnLpwDLBMu','BwLU','Dg91y2HZDge','Bwf0y2G','Aw5KzxHpzG','y29UC3rYDwm','DMC+cIaGica','AweTAgLKzgu','D3D3lNLVDxq','B3jUAw5N','q3jLvMK','CgXHEwXPC3q','sKffu0S','CZ0IBwL4lxq','idX2AwrLBYa','yxLZAw5SAw4','AMH5C2y','zwfKiJ4kica','C3m9iMvKlwS','Axy+cIaGica','CwvczfO','DY5ZB3vUzgm','psjFyMXHBMS','ywWTzMXVDW','uKmGrMXVyxq','yxbWBhK','teXbqG','AuTVzg4','CMDIka','E30Uy29UC3q','AgvYB0HPBNq','rhDbEwG','C21HzYddLYb3','Dg9tDhjPBMC','CMv0DxjUicG','pgrPDIbJBge','64+z66Y87j2yioYBGoYNGEYEHoYxKa','lM1WnciGDhK','zsiGAwq9iM0','DhjVBhmGCgW','qM9oDNu','CM5Uz2W','Cg9PBNrLCM0','iMj1DhrVBIi','yxK9zMfSC2u','Bwf0y2HLCW','v29PCge','iZjInMnIma','mtC2ntu3offlyKjjBG','y2L0Et0Imc4','iZa4mtmXyW','BM93','BwL4r3jPza','wwHrAvG','jMHPzgvFCMu','icaGica8ysa','BNnHlxrLzq','pGOGicaGica','pwzHBhnLjNm','y2XPy2S','wwLtrfu','Cgf1C2u','swn4Ewy','DgvZDa','zw50kde1mgq','q09ntvvosvq','zevqq0q','Bu9hwha','DJrOltj6ttm','mEYDVcdTLitROzZSOj3TIRGS','AxGTC2DTBte','EhnTrNm','q0DNuvi','tK5NvLu','66+464Ui66gD7iQKke1jtG','mJCXmtu2AMzSwg1X','B29Wzw5LCIi','y2XHC3m9iM0','AgvPz2H0','igrHDgeTAwq','zf9ZDg9Yzs8','zxjYB3i','D25mtuu','BgvMDa','y29UC29Szq','pc9KAxy+cIa','zxHJzxb0Aw8','iZbHmtqYma','i2zMm2qYzq','y2XLyxjszwm','CMm9iG','mtHSv0v0v3q','BxfHy2K','C2HPzNq','se1dvwu','s0vdCMW','qLjbtKqGq08','svjKEgS'];_0x1d77=function(){return _0x1a1671;};return _0x1d77();}const journalVideos=edGrid['querySel'+_0x55a7b4(0x364)]('video');if('Intersec'+_0x55a7b4(0x33c)+_0x55a7b4(0x2e7)in window){const vio=new IntersectionObserver(_0x592a8d=>{const _0x4f706a=_0x55a7b4,_0x3d22df={'oWpxE':function(_0x5c7870,_0x3a9d93){return _0x5c7870+_0x3a9d93;},'sGGEa':function(_0x39b3bd,_0x3994f2){return _0x39b3bd>=_0x3994f2;},'GogQP':function(_0x3decb9,_0x75676b){return _0x3decb9*_0x75676b;},'kxthH':function(_0x462651,_0x69dae4){return _0x462651-_0x69dae4;},'Bijqy':function(_0x1ef36a,_0xd65d39){return _0x1ef36a===_0xd65d39;},'wUNwg':_0x4f706a(0x263),'YTFpF':_0x4f706a(0x277)};_0x592a8d['forEach'](_0x42083f=>{const _0x56bf7c=_0x4f706a,_0x1289dd={'xZvpQ':function(_0x38b1d8,_0x20e119){const _0x5d9ac5=_0x5853;return _0x3d22df[_0x5d9ac5(0x1e1)](_0x38b1d8,_0x20e119);},'DwAyh':function(_0x5345cd,_0x299801){const _0x18ed50=_0x5853;return _0x3d22df[_0x18ed50(0x360)](_0x5345cd,_0x299801);},'mOGXp':function(_0x1a58a2,_0x353da1){const _0x3da736=_0x5853;return _0x3d22df[_0x3da736(0x1fd)](_0x1a58a2,_0x353da1);},'kBBwb':function(_0x2f3e53,_0xb42544){const _0x6cf40c=_0x5853;return _0x3d22df[_0x6cf40c(0x1f0)](_0x2f3e53,_0xb42544);}},_0x105e2b=_0x42083f[_0x56bf7c(0x327)];if(_0x42083f['isInters'+_0x56bf7c(0x20c)])_0x105e2b[_0x56bf7c(0x1e3)]()[_0x56bf7c(0x217)](()=>{});else{if(_0x3d22df[_0x56bf7c(0x321)](_0x3d22df[_0x56bf7c(0x362)],_0x3d22df[_0x56bf7c(0x1df)])){const [_0x61dee3,_0x2650fc]=_0x735293[_0x35ad06],[_0x5d5ae5,_0x851aca]=_0x5d8de2[BUcbRN[_0x56bf7c(0x399)](_0x518df1,0x1e8f+-0x18c9+-0x7*0xd3)];if(BUcbRN[_0x56bf7c(0x244)](_0x6952cf,_0x61dee3)&&_0x5c2ed8<=_0x5d5ae5){const _0xbc3d7f=(_0x5f0891-_0x61dee3)/(_0x5d5ae5-_0x61dee3||-0x18ea+-0x24e3+-0x2*-0x1ee7);return BUcbRN[_0x56bf7c(0x399)](_0x2650fc,BUcbRN[_0x56bf7c(0x268)](BUcbRN[_0x56bf7c(0x351)](_0x851aca,_0x2650fc),_0xbc3d7f));}}else _0x105e2b[_0x56bf7c(0x262)]();}});},{'threshold':0.01});journalVideos[_0x55a7b4(0x2d3)](_0x18ee26=>vio[_0x55a7b4(0x1fc)](_0x18ee26));}</script>
+</body>
+</html>
